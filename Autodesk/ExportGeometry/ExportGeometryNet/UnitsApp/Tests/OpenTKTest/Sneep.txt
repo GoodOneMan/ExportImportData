@@ -1,0 +1,717 @@
+﻿
+        // Points of a triangle in normalized device coordinates.
+        readonly float[] Points = new float[] {
+            // X, Y, Z, W
+            -0.5f, 0.0f, 0.0f, 1.0f,
+            0.5f, 0.0f, 0.0f, 1.0f,
+            0.0f, 0.5f, 0.0f, 1.0f };
+
+
+        int VertexShader;
+        int FragmentShader;
+        int ShaderProgram;
+        int VertexBufferObject;
+        int VertexArrayObject;
+
+        // A simple vertex shader possible. Just passes through the position vector.
+        const string VertexShaderSource = @"
+            #version 330
+            layout(location = 0) in vec4 position;
+            void main(void)
+            {
+                gl_Position = position;
+            }
+        ";
+
+        // A simple fragment shader. Just a constant red color.
+        const string FragmentShaderSource = @"
+            #version 330
+            out vec4 outputColor;
+            void main(void)
+            {
+                outputColor = vec4(1.0, 0.0, 0.0, 1.0);
+            }
+        ";
+
+
+        public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
+        {
+
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            // Load the source of the vertex shader and compile it.
+            VertexShader = GL.CreateShader(ShaderType.VertexShader);
+            GL.ShaderSource(VertexShader, VertexShaderSource);
+            GL.CompileShader(VertexShader);
+
+            // Load the source of the fragment shader and compile it.
+            FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+            GL.ShaderSource(FragmentShader, FragmentShaderSource);
+            GL.CompileShader(FragmentShader);
+
+            // Create the shader program, attach the vertex and fragment shaders and link the program.
+            ShaderProgram = GL.CreateProgram();
+            GL.AttachShader(ShaderProgram, VertexShader);
+            GL.AttachShader(ShaderProgram, FragmentShader);
+            GL.LinkProgram(ShaderProgram);
+
+            // Create the vertex buffer object (VBO) for the vertex data.
+            VertexBufferObject = GL.GenBuffer();
+            // Bind the VBO and copy the vertex data into it.
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
+            GL.BufferData(BufferTarget.ArrayBuffer, Points.Length * sizeof(float), Points, BufferUsageHint.StaticDraw);
+
+            // Retrive the position location from the program.
+            var positionLocation = GL.GetAttribLocation(ShaderProgram, "position");
+
+            // Create the vertex array object (VAO) for the program.
+            VertexArrayObject = GL.GenVertexArray();
+            // Bind the VAO and setup the position attribute.
+            GL.BindVertexArray(VertexArrayObject);
+            GL.VertexAttribPointer(positionLocation, 4, VertexAttribPointerType.Float, false, 0, 0);
+            GL.EnableVertexAttribArray(positionLocation);
+
+            // Set the clear color to blue
+            GL.ClearColor(0.0f, 0.0f, 1.0f, 0.0f);
+
+            base.OnLoad(e);
+        }
+
+        protected override void OnRenderFrame(FrameEventArgs e)
+        {
+            base.OnRenderFrame(e);
+
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            SwapBuffers();
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+
+            //base.OnResize(e);
+
+            //GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
+
+            //Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 4, Width / (float)Height, 1.0f, 64.0f);
+
+            //GL.MatrixMode(MatrixMode.Projection);
+
+            //GL.LoadMatrix(ref projection);
+
+            //GL.ClearColor(Color.Gold);
+
+            // Resize the viewport to match the window size.
+            GL.Viewport(0, 0, Width, Height);
+            base.OnResize(e);
+        }
+
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+            //KeyboardState input = Keyboard.GetState();
+
+            //Matrix4 modelview = Matrix4.LookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY);
+
+            //GL.MatrixMode(MatrixMode.Modelview);
+
+            //GL.LoadMatrix(ref modelview);
+            //GL.Begin(BeginMode.Triangles);
+
+            //GL.Vertex3(-1.0f, -1.0f, 4.0f);
+
+            //GL.Vertex3(1.0f, -1.0f, 4.0f);
+
+            //GL.Vertex3(0.0f, 1.0f, 4.0f);
+
+            //GL.End();
+
+
+
+            //if (input.IsKeyDown(Key.Escape))
+            //{
+            //    Exit();
+            //}
+
+            //base.OnUpdateFrame(e);
+
+            // Clear the color buffer.
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+
+            // Bind the VBO
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
+            // Bind the VAO
+            GL.BindVertexArray(VertexArrayObject);
+            // Use/Bind the program
+            GL.UseProgram(ShaderProgram);
+            // This draws the triangle.
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+
+            // Swap the front/back buffers so what we just rendered to the back buffer is displayed in the window.
+            Context.SwapBuffers();
+            base.OnRenderFrame(e);
+        }
+
+        protected override void OnUnload(EventArgs e)
+        {
+            // Unbind all the resources by binding the targets to 0/null.
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindVertexArray(0);
+            GL.UseProgram(0);
+
+            // Delete all the resources.
+            GL.DeleteBuffer(VertexBufferObject);
+            GL.DeleteVertexArray(VertexArrayObject);
+            GL.DeleteProgram(ShaderProgram);
+            GL.DeleteShader(FragmentShader);
+            GL.DeleteShader(VertexShader);
+
+            base.OnUnload(e);
+        }
+
+
+		#############################################################################################################
+		
+        //public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
+        //{
+
+        //}
+
+        // A simple vertex shader possible. Just passes through the position vector.
+        const string VertexShaderSource = @"
+            #version 330
+            layout(location = 0) in vec4 position;
+            void main(void)
+            {
+                gl_Position = position;
+            }
+        ";
+
+        // A simple fragment shader. Just a constant red color.
+        const string FragmentShaderSource = @"
+            #version 330
+            out vec4 outputColor;
+            void main(void)
+            {
+                outputColor = vec4(1.0, 0.0, 0.0, 1.0);
+            }
+        ";
+
+        // Points of a triangle in normalized device coordinates.
+        readonly float[] Points = new float[] {
+            // X, Y, Z, W
+            -0.5f, 0.0f, 0.0f, 1.0f,
+            0.5f, 0.0f, 0.0f, 1.0f,
+            0.0f, 0.5f, 0.0f, 1.0f };
+
+        int VertexShader;
+        int FragmentShader;
+        int ShaderProgram;
+        int VertexBufferObject;
+        int VertexArrayObject;
+
+        protected override void OnLoad(EventArgs e)
+        {
+            // Load the source of the vertex shader and compile it.
+            VertexShader = GL.CreateShader(ShaderType.VertexShader);
+            GL.ShaderSource(VertexShader, VertexShaderSource);
+            GL.CompileShader(VertexShader);
+
+            // Load the source of the fragment shader and compile it.
+            FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+            GL.ShaderSource(FragmentShader, FragmentShaderSource);
+            GL.CompileShader(FragmentShader);
+
+            // Create the shader program, attach the vertex and fragment shaders and link the program.
+            ShaderProgram = GL.CreateProgram();
+            GL.AttachShader(ShaderProgram, VertexShader);
+            GL.AttachShader(ShaderProgram, FragmentShader);
+            GL.LinkProgram(ShaderProgram);
+
+            // Create the vertex buffer object (VBO) for the vertex data.
+            VertexBufferObject = GL.GenBuffer();
+            // Bind the VBO and copy the vertex data into it.
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
+            GL.BufferData(BufferTarget.ArrayBuffer, Points.Length * sizeof(float), Points, BufferUsageHint.StaticDraw);
+
+            // Retrive the position location from the program.
+            var positionLocation = GL.GetAttribLocation(ShaderProgram, "position");
+
+            // Create the vertex array object (VAO) for the program.
+            VertexArrayObject = GL.GenVertexArray();
+            // Bind the VAO and setup the position attribute.
+            GL.BindVertexArray(VertexArrayObject);
+            GL.VertexAttribPointer(positionLocation, 4, VertexAttribPointerType.Float, false, 0, 0);
+            GL.EnableVertexAttribArray(positionLocation);
+
+            // Set the clear color to blue
+            GL.ClearColor(0.0f, 0.0f, 1.0f, 0.0f);
+
+            base.OnLoad(e);
+        }
+
+        protected override void OnUnload(EventArgs e)
+        {
+            // Unbind all the resources by binding the targets to 0/null.
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindVertexArray(0);
+            GL.UseProgram(0);
+
+            // Delete all the resources.
+            GL.DeleteBuffer(VertexBufferObject);
+            GL.DeleteVertexArray(VertexArrayObject);
+            GL.DeleteProgram(ShaderProgram);
+            GL.DeleteShader(FragmentShader);
+            GL.DeleteShader(VertexShader);
+
+            base.OnUnload(e);
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            // Resize the viewport to match the window size.
+            GL.Viewport(0, 0, Width, Height);
+            base.OnResize(e);
+        }
+
+        protected override void OnRenderFrame(FrameEventArgs e)
+        {
+            // Clear the color buffer.
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+
+            // Bind the VBO
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
+            // Bind the VAO
+            GL.BindVertexArray(VertexArrayObject);
+            // Use/Bind the program
+            GL.UseProgram(ShaderProgram);
+            // This draws the triangle.
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+
+            // Swap the front/back buffers so what we just rendered to the back buffer is displayed in the window.
+            Context.SwapBuffers();
+            base.OnRenderFrame(e);
+        }
+		#############################################################################################################
+		using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Drawing;
+using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Input;
+
+namespace ExportGeometry.UnitsApp.Tests.OpenTKTest
+{
+    class Game : GameWindow
+    {
+        int Program;
+        int Attrib_vertex;
+        int Unif_color;
+        int VBO;
+
+        struct Vertex
+        {
+            public float x;
+            public float y;
+        }
+
+        public Game() : base(640, 480, new GraphicsMode(new ColorFormat(32), 16), "OpenTk")
+        {
+
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            GL.ClearColor(Color.Black);
+
+            InitVBO();
+            InitShader();
+        }
+
+
+        protected override void OnUnload(EventArgs e)
+        {
+            base.OnUnload(e);
+
+            FreeShader();
+            FreeVBO();
+        }
+
+        static void ShaderLog(string tag, int shader)
+        {
+            string infolog;
+
+            GL.GetShaderInfoLog(shader, out infolog);
+
+            if(infolog.Length > 1)
+            {
+                // Write log
+            }
+
+        }
+        static void CheckOpenGLerror()
+        {
+            ErrorCode errCode = GL.GetError();
+
+            if(errCode != ErrorCode.NoError)
+            {
+                // Write errCode
+
+            }
+        }
+
+        private void InitShader()
+        {
+            const string vsSource = @"attribute vec2 coord;
+            void main() {
+            gl_Position = vec4(coord, 0.0, 1.0);
+            }";
+
+            const string fsSource = @"uniform vec4 color;
+            void main(){
+            gl_FragColor = color;
+            }";
+
+            int vShader, fShader;
+
+            vShader = GL.CreateShader(ShaderType.VertexShader);
+            GL.ShaderSource(vShader, vsSource);
+            GL.CompileShader(vShader);
+
+            ShaderLog("vertex shader", vShader);
+
+            fShader = GL.CreateShader(ShaderType.FragmentShader);
+            GL.ShaderSource(fShader, fsSource);
+            GL.CompileShader(fShader);
+
+            ShaderLog("fragment shader", fShader);
+
+            Program = GL.CreateProgram();
+            GL.AttachShader(Program, vShader);
+            GL.AttachShader(Program, fShader);
+
+            GL.LinkProgram(Program);
+
+            const string attr_name = "coord";
+            Attrib_vertex = GL.GetAttribLocation(Program, attr_name);
+            if(Attrib_vertex == -1)
+            {
+                // write not attrib
+                return;
+            }
+
+            const string unif_name = "color";
+            Unif_color = GL.GetUniformLocation(Program, unif_name);
+            if(Unif_color == -1)
+            {
+                // write not uniform
+                return;
+            }
+
+            CheckOpenGLerror();
+        }
+
+        void InitVBO()
+        {
+            GL.GenBuffers(1, out VBO);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+
+            Vertex[] triangle =
+            {
+                new Vertex {x = -1.0f, y = -1.0f },
+                new Vertex {x = 0.0f, y = 1.0f },
+                new Vertex {x = 1.0f, y = -1.0f },
+            };
+
+            GL.BufferData(BufferTarget.ArrayBuffer, triangle.Length * 8, triangle, BufferUsageHint.StaticDraw);
+
+            CheckOpenGLerror();
+        }
+
+        void FreeShader()
+        {
+            GL.UseProgram(0);
+            GL.DeleteProgram(Program);
+        }
+
+        void FreeVBO()
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.DeleteBuffers(1, ref VBO);
+        }
+
+
+        protected override void OnRenderFrame(FrameEventArgs e)
+        {
+            base.OnRenderFrame(e);
+
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.UseProgram(Program);
+            GL.Uniform4(Unif_color, 1.0f, 0.0f, 0.0f, 1.0f);
+            GL.EnableVertexAttribArray(Attrib_vertex);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+            GL.VertexAttribPointer(Attrib_vertex, 2, VertexAttribPointerType.Float, false, 0, 0);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+            GL.DisableVertexAttribArray(Attrib_vertex);
+            GL.UseProgram(0);
+            SwapBuffers();
+
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
+        }
+    }
+}
+
+		#############################################################################################################
+		using System;
+using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Input;
+
+namespace ExportGeometry.UnitsApp.Tests.OpenTKTest
+{
+    class Game : GameWindow
+    {
+        private readonly float[] _vertices =
+        {
+            // Position Texture coordinates
+             0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // top right
+             0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
+            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // top left 
+        };
+
+        private readonly uint[] _indices =
+        {
+            0, 1, 3,
+            1, 2, 3
+        };
+
+        private int _elementBufferObject;
+        private int _vertexBufferObject;
+        private int _vertexArrayObject;
+
+        private Shader _shader;
+        private Texture _texture;
+        private Texture _texture2;
+
+        // I have removed the view and projection matrices as we dont need them here anymore
+        // They can now be found in the new camera class
+
+        // We need an instance of the new camera class so it can manage the view and projection matrix code
+        // We also need a boolean set to true to detect whether or not the mouse has been moved for the first time
+        // Finally we add the last position of the mouse so we can calculate the mouse offset easily
+        private Camera _camera;
+        private bool _firstMove = true;
+        private Vector2 _lastPos;
+
+        private double _time;
+
+
+        public Game(int width, int height, string title) : base(width, height, GraphicsMode.Default, title) { }
+
+
+        protected override void OnLoad(EventArgs e)
+        {
+            GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
+            GL.Enable(EnableCap.DepthTest);
+
+            _vertexBufferObject = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
+            GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StaticDraw);
+
+            _elementBufferObject = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
+
+            _shader = new Shader(@"C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\ExportGeometry\UnitsApp\Tests\OpenTKTest\Shaders\shader.vert", @"C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\ExportGeometry\UnitsApp\Tests\OpenTKTest\Shaders\shader.frag");
+            _shader.Use();
+
+            _texture = new Texture(@"C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\ExportGeometry\UnitsApp\Tests\OpenTKTest\Resources\container.png");
+            _texture.Use();
+
+            _texture2 = new Texture(@"C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\ExportGeometry\UnitsApp\Tests\OpenTKTest\Resources\awesomeface.png");
+            _texture2.Use(TextureUnit.Texture1);
+
+            _shader.SetInt("texture0", 0);
+            _shader.SetInt("texture1", 1);
+
+            _vertexArrayObject = GL.GenVertexArray();
+            GL.BindVertexArray(_vertexArrayObject);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexArrayObject);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
+
+
+            var vertexLocation = _shader.GetAttribLocation("aPosition");
+            GL.EnableVertexAttribArray(vertexLocation);
+            GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+
+
+            var texCoordLocation = _shader.GetAttribLocation("aTexCoord");
+            GL.EnableVertexAttribArray(texCoordLocation);
+            GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+
+            // We initialize the camera so that it is 3 units back from where the rectangle is
+            // and give it the proper aspect ratio
+            _camera = new Camera(Vector3.UnitZ * 3, Width / (float)Height);
+
+            // We make the mouse cursor invisible so we can have proper FPS-camera movement
+            CursorVisible = false;
+
+            base.OnLoad(e);
+        }
+
+
+        protected override void OnRenderFrame(FrameEventArgs e)
+        {
+            _time += 4.0 * e.Time;
+
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            GL.BindVertexArray(_vertexArrayObject);
+
+            _texture.Use();
+            _texture2.Use(TextureUnit.Texture1);
+            _shader.Use();
+
+            var model = Matrix4.Identity * Matrix4.CreateRotationX((float)MathHelper.DegreesToRadians(_time));
+            _shader.SetMatrix4("model", model);
+            _shader.SetMatrix4("view", _camera.GetViewMatrix());
+            _shader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+
+            GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+
+            SwapBuffers();
+
+            base.OnRenderFrame(e);
+        }
+
+
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+            if (!Focused) // check to see if the window is focused
+            {
+                return;
+            }
+
+            var input = Keyboard.GetState();
+
+            if (input.IsKeyDown(Key.Escape))
+            {
+                Exit();
+            }
+
+            const float cameraSpeed = 1.5f;
+            const float sensitivity = 0.2f;
+
+            if (input.IsKeyDown(Key.W))
+                _camera.Position += _camera.Front * cameraSpeed * (float)e.Time; // Forward 
+            if (input.IsKeyDown(Key.S))
+                _camera.Position -= _camera.Front * cameraSpeed * (float)e.Time; // Backwards
+            if (input.IsKeyDown(Key.A))
+                _camera.Position -= _camera.Right * cameraSpeed * (float)e.Time; // Left
+            if (input.IsKeyDown(Key.D))
+                _camera.Position += _camera.Right * cameraSpeed * (float)e.Time; // Right
+            if (input.IsKeyDown(Key.Space))
+                _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up 
+            if (input.IsKeyDown(Key.LShift))
+                _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
+
+            // Get the mouse state
+            var mouse = Mouse.GetState();
+
+            if (_firstMove) // this bool variable is initially set to true
+            {
+                _lastPos = new Vector2(mouse.X, mouse.Y);
+                _firstMove = false;
+            }
+            else
+            {
+                // Calculate the offset of the mouse position
+                var deltaX = mouse.X - _lastPos.X;
+                var deltaY = mouse.Y - _lastPos.Y;
+                _lastPos = new Vector2(mouse.X, mouse.Y);
+
+                // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
+                _camera.Yaw += deltaX * sensitivity;
+                _camera.Pitch -= deltaY * sensitivity; // reversed since y-coordinates range from bottom to top
+            }
+
+            base.OnUpdateFrame(e);
+        }
+
+
+        // This function's main purpose is to set the mouse position back to the center of the window
+        // every time the mouse has moved. So the cursor doesn't end up at the edge of the window where it cannot move
+        // further out
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            if (Focused) // check to see if the window is focused
+            {
+                Mouse.SetPosition(X + Width / 2f, Y + Height / 2f);
+            }
+
+            base.OnMouseMove(e);
+        }
+
+
+        // In the mouse wheel function we manage all the zooming of the camera
+        // this is simply done by changing the FOV of the camera
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            _camera.Fov -= e.DeltaPrecise;
+            base.OnMouseWheel(e);
+        }
+
+
+        protected override void OnResize(EventArgs e)
+        {
+            GL.Viewport(0, 0, Width, Height);
+            // We need to update the aspect ratio once the window has been resized
+            _camera.AspectRatio = Width / (float)Height;
+            base.OnResize(e);
+        }
+
+
+        protected override void OnUnload(EventArgs e)
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindVertexArray(0);
+            GL.UseProgram(0);
+
+            GL.DeleteBuffer(_vertexBufferObject);
+            GL.DeleteVertexArray(_vertexArrayObject);
+
+            GL.DeleteProgram(_shader.Handle);
+            GL.DeleteTexture(_texture.Handle);
+            GL.DeleteTexture(_texture2.Handle);
+
+            base.OnUnload(e);
+        }
+    }
+}
+
+		#############################################################################################################
+
+		#############################################################################################################
+
+		#############################################################################################################
+
+		#############################################################################################################
+
+		#############################################################################################################

@@ -1,0 +1,24 @@
+﻿# This file uses UTF8 encoding. Lines starting with # or $, or ending with =
+# do NOT need translating.
+$utf8
+
+DisplayName=
+Template_Title_DisplayName
+
+ID_Template_Tab.DisplayName=
+Дополнения
+
+ID_Select_Button.DisplayName=
+обработать модель
+
+ID_Export_Geometry.DisplayName=
+экспорт геометрии
+
+ID_Transparent_Insulation.DisplayName=
+прозрачная изоляция
+
+ID_Update_File.DisplayName=
+обновить модель
+
+ID_Test.DisplayName=
+тест

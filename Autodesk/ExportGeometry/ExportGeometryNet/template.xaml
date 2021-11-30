@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RibbonControl 
+    x:Uid="DgnDataToNavisworks" xmlns="clr-namespace:Autodesk.Windows;assembly=AdWindows" 
+    xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:adwi="clr-namespace:Autodesk.Internal.Windows;assembly=AdWindows"  
+    xmlns:system="clr-namespace:System;assembly=mscorlib" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Autodesk.Navisworks.Gui.Roamer.AIRLook;assembly=navisworks.gui.roamer">
+
+    <RibbonTab Id="ID_Template_Tab">
+        <RibbonPanel x:Uid="RibbonPanel_Template">
+            <RibbonPanelSource x:Uid="RibbonPanelSource_Template" Title="Геометрия">
+                <RibbonRowPanel x:Uid="RibbonRowPanel_ID_Template">
+
+                    <local:NWRibbonSplitButton x:Uid="Select_Button" Id="ID_Select_Button"
+                                             IsSynchronizedWithCurrentItem="False"
+                                             IsSplit="True"
+                                             ShowText="True"
+                                             Size="Large"
+                                             Orientation="Vertical">
+
+                        <local:NWRibbonButton x:Uid="Export_Geometry" Id="ID_Export_Geometry"  
+                                             ShowText="True"
+                                             Size="Large"
+											 Orientation="Horizontal"/>
+
+                        <local:NWRibbonButton x:Uid="Transparent_Insulation" Id="ID_Transparent_Insulation"  
+                                             ShowText="True"
+                                             Size="Large"
+											 Orientation="Horizontal"/>
+
+                        <local:NWRibbonButton x:Uid="Update_File" Id="ID_Update_File"  
+                                             ShowText="True"
+                                             Size="Large"
+											 Orientation="Horizontal"/>
+
+                        <local:NWRibbonButton x:Uid="Test" Id="ID_Test"  
+                                             ShowText="True"
+                                             Size="Large"
+											 Orientation="Horizontal"/>
+                        
+                    </local:NWRibbonSplitButton>
+                    
+                </RibbonRowPanel>
+            </RibbonPanelSource>
+        </RibbonPanel>
+    </RibbonTab>
+</RibbonControl>

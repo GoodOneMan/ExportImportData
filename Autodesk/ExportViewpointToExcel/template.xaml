@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RibbonControl 
+    x:Uid="ExportDataInNavisworks" xmlns="clr-namespace:Autodesk.Windows;assembly=AdWindows" 
+    xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:adwi="clr-namespace:Autodesk.Internal.Windows;assembly=AdWindows"  
+    xmlns:system="clr-namespace:System;assembly=mscorlib" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Autodesk.Navisworks.Gui.Roamer.AIRLook;assembly=navisworks.gui.roamer">
+
+    <RibbonTab Id="ID_Template_Tab">
+        <RibbonPanel x:Uid="RibbonPanel_Template">
+            <RibbonPanelSource x:Uid="RibbonPanelSource_Template" Title="">
+                <RibbonRowPanel x:Uid="RibbonRowPanel_ID_Template">
+
+                    <local:NWRibbonSplitButton x:Uid="Select_Button" Id="ID_Select_Button"
+                                             IsSynchronizedWithCurrentItem="False"
+                                             IsSplit="True"
+                                             ShowText="True"
+                                             Size="Large"
+                                             Orientation="Vertical">
+                        
+                        <local:NWRibbonButton x:Uid="Viewpoint_Report" Id="ID_Viewpoint_Report"  
+                                             ShowText="True"
+                                             Size="Large"
+											 Orientation="Horizontal"/>
+
+                    </local:NWRibbonSplitButton>
+                    
+                </RibbonRowPanel>
+            </RibbonPanelSource>
+        </RibbonPanel>
+    </RibbonTab>
+</RibbonControl>

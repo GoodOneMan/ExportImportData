@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{474968A5-AF64-4914-BA27-0A45995C0B9F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ExportDataToModel</RootNamespace>
+    <AssemblyName>ExportDataToModel</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>C:\Program Files %28x86%29\Bentley\OpenPlantModeler V8i\OpenPlantModeler\mdlapps\ExportDataToModel\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>3</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Bentley.APModeling.Controls">
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\assemblies\Bentley.APModeling.Controls.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.DGNECPlugin">
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\assemblies\Bentley.DGNECPlugin.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.DGNECPlugin.Common">
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\assemblies\Bentley.DGNECPlugin.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.ECObjects.2.0">
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\assemblies\ECFramework\Bentley.ECObjects.2.0.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.ECSystem.2.0">
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\assemblies\ECFramework\Bentley.ECSystem.2.0.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.General.1.0, Version=1.0.0.0, Culture=neutral, PublicKeyToken=4bf6c96a266e58d4, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\assemblies\ECFramework\Bentley.General.1.0.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="bentley.interop.microstationdgn, Version=8.0.0.0, Culture=neutral, PublicKeyToken=4bf6c96a266e58d4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\assemblies\bentley.interop.microstationdgn.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="bentley.microstation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=4bf6c96a266e58d4, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\assemblies\bentley.microstation.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="bentley.microstation.interfaces.1.0, Version=1.0.0.0, Culture=neutral, PublicKeyToken=4bf6c96a266e58d4, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\assemblies\bentley.microstation.interfaces.1.0.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Plant.Utilities">
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\assemblies\Bentley.Plant.Utilities.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Platform">
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\assemblies\ECFramework\Bentley.Platform.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="bentley.propertymanager">
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\assemblies\bentley.propertymanager.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ustation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9bfed12b64a9b7df, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Bentley\OpenPlantModeler V8i\OpenPlantModeler\ustation.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AppUnits\Config.cs" />
+    <Compile Include="AppUnits\LoadingResources.cs" />
+    <Compile Include="AppUnits\ModelHandlers\Model.cs" />
+    <Compile Include="AppUnits\ModelHandlers\ModelStructure.cs" />
+    <Compile Include="AppUnits\ModelsHandler.cs" />
+    <Compile Include="AppUnits\TestR.cs" />
+    <Compile Include="Keyin.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Runner.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="commands.xml" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <EmbeddedResource Include="DataModelBentleyOPM.dll.deflated" />
+    <None Include="specified_fields.dat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Sneep.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Structures\DataModelBentleyOPM\DataModelBentleyOPM.csproj">
+      <Project>{40df1596-0bc5-45d5-9077-6aafa60f8252}</Project>
+      <Name>DataModelBentleyOPM</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

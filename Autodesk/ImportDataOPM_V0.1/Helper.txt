@@ -1,0 +1,56 @@
+﻿Элемент LcOaNode
+
+
+Внутренний тип (LcOaSceneBaseClassName):LcDgnReference
+Тип (LcOaSceneBaseClassUserName):Ссылка
+Внутренний тип (LcOaSceneBaseClassName):LcDgnLevel
+Внутренний тип (LcOaSceneBaseClassName):LcDgnCell
+
+
+Ссылка ReferenceProps
+ID объекта LcDgnElementId
+
+
+*********************************************
+
+
+
+
+                                        //ModelItem item = null;
+
+                                        //var enumerator_Element = dgnLevel.Descendants.Where(i => i.PropertyCategories.FindPropertyByDisplayName("ID объекта", "Значение").Value.ToDisplayString().Equals(element.ElementID)).GetEnumerator();
+
+                                        //int countId = 0;
+
+                                        //while (enumerator_Element.MoveNext())
+                                        //{
+                                        //    item = enumerator_Element.Current;
+
+                                        //    if (countId > 1)
+                                        //    {
+                                        //        string m = countId.ToString();
+                                        //    }
+
+                                        //    countId++;
+                                        //}
+
+                                        
+                                        //try
+                                        //{
+                                        //    item = dgnLevel.Descendants.First((i) =>
+                                        //    {
+                                        //        return i.PropertyCategories.FindPropertyByDisplayName("ID объекта", "Значение").Value.ToDisplayString().Equals(element.ElementID);
+                                        //    });
+                                        //}
+                                        //catch(Exception ex)
+                                        //{
+                                        //    var mes = ex.Message;
+                                        //}
+
+                                        //if (item != null)
+                                        //{
+                                        //    // Add property in element
+                                        //    AddData(item, element.Properties, "MicroStation - Данные на элементе");
+
+                                        //    messageForm.SetCounter(countElement++);
+                                        //}

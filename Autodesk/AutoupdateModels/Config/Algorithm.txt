@@ -1,0 +1,63 @@
+полна€ пам€ть
+пам€ть процесса
+свободна€ пам€ть
+
+process 1 max size = 13 gb
+process 2 max size = 12 gb
+
+total memory = 24 gb
+
+free memory X
+
+current memory 1 = 4 gb
+current memory 2 = 2 gb
+
+4+2+13 and 4+2+12 < 24
+
+task continue
+
+current memory 1 = 8 gb
+current memory 2 = 7 gb
+
+8+7+13 > 24 and 8+7+12>24
+
+or 1 pause
+or 2 pause
+
+pause 1 > 13 + 7 < 24
+pause 2 > 8 + 12 < 24
+
+1 > 2  then 1 fast 13 and
+
+#data
+
+long current_size_one;
+long current_size_two;
+
+long total_memory;
+long free_memory;
+
+long max_size_one;
+long max_size_two;
+
+
+# step 1
+(process) long max_current_size = if(current_size_one > current_size_two)
+							return current_size_one
+						else
+							return current_size_two
+
+if(free_memory > max_size_one and free_memory>max_size_two) 
+	continue
+else
+
+long residue_one = max_size_one - current_size_one
+long residue_two = max_size_two - current_size_two
+
+long free_residue_one = free_memory - residue_one
+long free_residue_two = free_memory - residue_two
+
+
+# step 2
+
+

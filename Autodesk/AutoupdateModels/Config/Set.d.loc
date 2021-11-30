@@ -1,0 +1,23 @@
+﻿#############################################
+## Comments
+## pause loop 1 min //sec, min, hour [1:23:1]
+## pause copy file 1 min //sec, min, hour
+## file link D:\name.nwf
+## file link D:\name.dgn
+## file link D:\name.dwg
+## file link D:\name.rvt
+## file link D:\name.fbx
+## group name DSSK_T200 > T200.nwd
+## group file DSSK_T200 > D:\name.dwg
+## folder save D:\...
+## group folder DSSK_T200 > D:\...
+#############################################
+pause loop 1 min
+pause copy file 1:29:13
+
+// Single model
+folder save D:\ModelUpdate\OneFiles\
+file link D:\ProjectFolder\Files_For_Test\004_9_TM\trubi_200.dgn
+file link D:\ProjectFolder\Files_For_Test\Models\5-12839-Equipment_TX.dwg
+file link D:\ProjectFolder\Files_For_Test\TestAutoUpdate\VSK.nwf
+

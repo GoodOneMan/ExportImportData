@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0BDE810E-1045-495C-AA0C-2086574E4509}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ExportGeometry</RootNamespace>
+    <AssemblyName>ExportGeometry</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Bin_ModelGeometry\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Bin_ModelGeometry\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AdWindows">
+      <HintPath>C:\Program Files\Autodesk\Navisworks Simulate 2017\AdWindows.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.Navisworks.Api">
+      <HintPath>C:\Program Files\Autodesk\Navisworks Simulate 2017\Autodesk.Navisworks.Api.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.Navisworks.ComApi">
+      <HintPath>C:\Program Files\Autodesk\Navisworks Simulate 2017\Autodesk.Navisworks.ComApi.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.Navisworks.Interop.ComApi">
+      <HintPath>C:\Program Files\Autodesk\Navisworks Simulate 2017\Autodesk.Navisworks.Interop.ComApi.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="IFC4Exporter2017">
+      <HintPath>..\..\..\..\..\..\IFC4Exporter2017.dll</HintPath>
+    </Reference>
+    <Reference Include="navisworks.gui.roamer">
+      <HintPath>C:\Program Files\Autodesk\Navisworks Simulate 2017\navisworks.gui.roamer.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="OpenTK, Version=3.0.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\OpenTK.3.0.1\lib\net20\OpenTK.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App\ModelGeometry\DataRrobber.cs" />
+    <Compile Include="App\Structures\Model.cs" />
+    <Compile Include="Runner.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitsApp\Helpers\CallingFileBrowser.cs" />
+    <Compile Include="UnitsApp\Helpers\ConvertLCSToWCS.cs" />
+    <Compile Include="UnitsApp\Helpers\FinderItem.cs" />
+    <Compile Include="UnitsApp\Helpers\ModelStructure.cs" />
+    <Compile Include="UnitsApp\Source\ModelGeometryCall.cs" />
+    <Compile Include="UnitsApp\Source\ModelGeometryCall_Three.cs" />
+    <Compile Include="UnitsApp\Source\ModelGeometryCall_Two.cs" />
+    <Compile Include="UnitsApp\Source\TransparentCall.cs" />
+    <Compile Include="UnitsApp\Source\UpdataFileCall.cs" />
+    <Compile Include="UnitsApp\Source\UpdateFile\FilesModel.cs" />
+    <Compile Include="UnitsApp\Tests\ExportFbx.cs" />
+    <Compile Include="UnitsApp\Tests\GeometryReadTest.cs" />
+    <Compile Include="UnitsApp\Tests\lcTest.cs" />
+    <Compile Include="UnitsApp\Tests\OpenTKTest\Common\Camera.cs" />
+    <Compile Include="UnitsApp\Tests\OpenTKTest\Game.cs" />
+    <Compile Include="UnitsApp\Tests\OpenTKTest\Common\Shader.cs" />
+    <Compile Include="UnitsApp\Tests\OpenTKTest\StartGame.cs" />
+    <Compile Include="UnitsApp\Tests\OpenTKTest\Common\Texture.cs" />
+    <Compile Include="UnitsApp\Tests\Reflectiontest.cs" />
+    <Compile Include="UnitsApp\Tests\Test.cs" />
+    <Compile Include="UnitsApp\Tests\WriteObj_sFile.cs" />
+    <Compile Include="UnitsApp\Tests\WriteToFileData.cs" />
+    <Compile Include="UnitsApp\Tests\WriteToObjFile.cs" />
+    <Compile Include="UnitsApp\Tests\WriteVertexForOpenTK.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="OpenTK.dll.config" />
+    <None Include="packages.config" />
+    <None Include="template.name" />
+    <None Include="UnitsApp\Tests\OpenTKTest\Shaders\shader.frag" />
+    <None Include="UnitsApp\Tests\OpenTKTest\Shaders\shader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="template.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App\ModelHelpers\" />
+    <Folder Include="Images\" />
+    <Folder Include="UnitsApp\ConfigData\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DataStructure.txt" />
+    <Content Include="DataStructure_Test.txt" />
+    <Content Include="Sneep.txt" />
+    <Content Include="UnitsApp\Tests\OpenTKTest\Resources\awesomeface.png" />
+    <Content Include="UnitsApp\Tests\OpenTKTest\Resources\container.png" />
+    <Content Include="UnitsApp\Tests\OpenTKTest\Sneep.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>IF EXIST "C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\$(TargetName)\" rmdir /S /Q "C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\$(TargetName)\"
+xcopy /Y "$(TargetPath)" "C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\$(TargetName)\"
+
+mkdir "C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\$(TargetName)\ru-RU
+copy /Y "$(ProjectDir)template.xaml" "C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\$(TargetName)\ru-RU\"
+copy /Y "$(ProjectDir)template.name" "C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\$(TargetName)\ru-RU\"
+
+xcopy /Y "$(ProjectDir)Images\*.*" "C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\$(TargetName)\Images\"
+
+
+xcopy /Y "$(ProjectDir)UnitsApp\Tests\OpenTKTest\Resources\*.*" "C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\$(TargetName)\UnitsApp\Tests\OpenTKTest\Resources\"
+xcopy /Y "$(ProjectDir)UnitsApp\Tests\OpenTKTest\Shaders\*.*" "C:\Program Files\Autodesk\Navisworks Simulate 2017\Plugins\$(TargetName)\UnitsApp\Tests\OpenTKTest\Shaders\"
+</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,269 @@
+﻿<ECQuery type="Bentley.EC.Persistence.Query.ECQuery,Bentley.EC.Persistence.2.0" id="a303afa0-cb16-4304-892e-d4c9e86f6254" maxResults="-1" isCaseSensitive="true" xmlns="http://www.bentley.com/schemas/Bentley.ECQuery.1.0">
+<SearchClass ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" isPolymorphic="false" /><SelectCriteria type="Bentley.EC.Persistence.Query.SelectCriteria,Bentley.EC.Persistence.2.0"><AbstractSelectCriteria selectAllProperties="false" selectDistinctValues="false" type="Bentley.EC.Persistence.Query.SelectCriteria,Bentley.EC.Persistence.2.0"><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PLANT_BASE_OBJECT" ecProperty="GUID" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PLANT_BASE_OBJECT" ecProperty="OPMS_OPERATION_ID" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PLANT_BASE_OBJECT" ecProperty="OPMS_PROVENANCE_ID" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PLANT_BASE_OBJECT" ecProperty="EC_InstanceID" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="NAMED_ITEM" ecProperty="ACTIVE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="UPPER_LIMIT_INLET_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="UPPER_LIMIT_OUTLET_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="UPPER_LIMIT_PRESSURE_AT_DESIGN_TEMPERATURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="UPPER_LIMIT_OPERATING_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="UPPER_LIMIT_DESIGN_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="UPPER_LIMIT_OPERATING_TEMPERATURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="UPPER_LIMIT_DESIGN_TEMPERATURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="INTERNAL_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="INTERNAL_DESIGN_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="INSIDE_DIAMETER" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="INLET_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="END_DIAMETER" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="NAMED_ITEM" ecProperty="ALIAS" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NAME" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="UNIT_NAME" /><ECPropertyReference ecSchema="OpenPlant.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="SYSTEM_NAME" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="SERVICE_NAME" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="TEST_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="MAXIMUM_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="INSULATION" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="SPECIFICATION" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="DESIGN_SPECIFICATION" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="MINIMUM_OPERATING_TEMPERATURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="EXTERNAL_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="EXTERNAL_DESIGN_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="OUTSIDE_DIAMETER" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="START_DIAMETER" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="LOWER_LIMIT_OPERATING_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="LOWER_LIMIT_DESIGN_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="LOWER_LIMIT_DESIGN_TEMPERATURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NUMBER" /><ECPropertyReference ecSchema="OpenPlant.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="TAG_NUMBER" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NOMINAL_LENGTH" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NOMINAL_DESIGN_TEMPERATURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NOMINAL_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NOMINAL_OVERCOVERAGE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NOMINAL_DESIGN_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NOMINAL_DIAMETER" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NOMINAL_PRESSURE_RANGE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NOMINAL_TEMPERATURE_RANGE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NORMAL_OPERATING_TEMPERATURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NORMAL_INLET_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="NORMAL_OPERATING_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="NAMED_ITEM" ecProperty="DESCRIPTION" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="ABSOLUTE_OPERATING_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="FLOW_RATE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="ABSOLUTE_DESIGN_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="DESIGN_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="INLET_DESIGN_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="OUTLET_DESIGN_PRESSURE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="DESIGN_STATE" /><ECPropertyReference ecSchema="OpenPlant.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="DESIGN_SIZE" /><ECPropertyReference ecSchema="OpenPlant.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="SERVICE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="NAMED_ITEM" ecProperty="PDX_STATE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="NAMED_ITEM" ecProperty="PSDS_STATE" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PLANT_BASE_OBJECT" ecProperty="OPMS_CHECKOUT_STATUS" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="TRACING" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="INSULATION_THICKNESS" /><ECPropertyReference ecSchema="OpenPlant_3D.01.04" ecClass="PIPING_NETWORK_SYSTEM" ecProperty="WALL_THICKNESS" /></AbstractSelectCriteria></SelectCriteria><WhereCriteria type="Bentley.EC.Persistence.Query.WhereCriteria,Bentley.EC.Persistence.2.0"><WhereCriterion type="Bentley.EC.Persistence.Query.WhereCriteria,Bentley.EC.Persistence.2.0" /></WhereCriteria><OrderByCriterion type="Bentley.EC.Persistence.Query.OrderByCriterion,Bentley.EC.Persistence.2.0" /><TransientLookupCollection xmlns="http://www.bentley.com/schemas/Bentley.ECSerializable.1.0"><Entry key="SearchType"><DataContractObject type="Bentley.EC.AbstractUI.SearchType,Bentley.EC.AbstractUI.2.0"><SearchType xmlns="http://schemas.datacontract.org/2004/07/Bentley.EC.AbstractUI">Class</SearchType></DataContractObject></Entry><Entry key="QUERYFORM_HIDDENCLASSES" typeCode="Boolean">false</Entry><Entry key="QUERYFORM_SHOWCLASSESWITHINSTANCES" typeCode="Boolean">false</Entry><Entry key="QUERYFORM_DEFAULTLOGICALOPERATOR"><DataContractObject type="Bentley.EC.Persistence.Query.LogicalOperator,Bentley.EC.Persistence.2.0"><LogicalOperator xmlns="http://schemas.datacontract.org/2004/07/Bentley.EC.Persistence.Query">AND</LogicalOperator></DataContractObject></Entry></TransientLookupCollection>
+</ECQuery>
+
+*****************************************************************
+
+
+        BCOM.Application _app = null;
+        BCOM.DesignFile _design_file = null;
+        BCOM.ModelReference _model_reference = null;
+        StreamWriter sw = new StreamWriter(@"D:\DataTestEC.txt");
+
+        public TestR()
+        {
+            _app = BIM.Utilities.ComApp;
+            _design_file = _app.ActiveDesignFile;
+            _model_reference = _app.ActiveModelReference;
+
+            Init();
+
+            sw.Close();
+        }
+
+        private void Init()
+        {
+            #region One
+            //BCOM.ElementCache elementCache = _model_reference.ControlElementCache;
+            //BCOM.ElementEnumerator elementEnumerator = elementCache.Scan();
+
+            //var el = elementEnumerator.BuildArrayFromContents().Length;
+            //while (elementEnumerator.MoveNext())
+            //{
+            //    BCOM.Element element = elementEnumerator.Current;
+
+            //    #region Бессмысленно
+            //    //BCOM.ElementCache cache =element.Cache;
+            //    //BCOM.ElementEnumerator cacheEnumerator = cache.Scan();
+            //    //var cl = cacheEnumerator.BuildArrayFromContents().Length;
+            //    //while (cacheEnumerator.MoveNext())
+            //    //{
+            //    //    BCOM.Element ce = cacheEnumerator.Current;
+            //    //}
+            //    #endregion
+
+            //    #region Свойства
+            //    //BCOM.MsdElementType type = element.Type;
+            //    //if(BCOM.MsdElementType.ReferenceAttachment == type)
+            //    //{
+            //    //    BCOM.PropertyHandler propery_handler = _app.CreatePropertyHandler(element);
+            //    //    string[] properties = propery_handler.GetAccessStrings();
+            //    //    foreach(string name in properties)
+            //    //    {
+            //    //        try
+            //    //        {
+            //    //            if (propery_handler.SelectByAccessString(name))
+            //    //            {
+            //    //                if (!propery_handler.GetDisplayString().Equals(""))
+            //    //                {
+            //    //                    sw.WriteLine("name [ " + name + " ] - value [ " + propery_handler.GetDisplayString() + " ]");
+            //    //                }
+            //    //            }
+            //    //        }
+            //    //        catch (Exception ex)
+            //    //        {
+            //    //            sw.WriteLine("name [ " + name + " ] - value [ " + ex.Message);
+            //    //        }
+
+            //    //    }
+            //    //    sw.WriteLine(new String('#', 100));
+            //    //}
+            //    //BCOM.MsdElementSubtype subtype = element.Subtype;
+            //    //string[] xDataNames = element.GetXDataApplicationNames();
+            //    #endregion
+
+            //}
+            #endregion
+
+            #region Two
+            //BCOM.Attachments attachments = _model_reference.Attachments;
+
+            //if(attachments.Count != 0)
+            //{
+            //    var attachmentEnumerator = attachments.GetEnumerator();
+
+            //    while (attachmentEnumerator.MoveNext())
+            //    {
+            //        BCOM.Attachment attachment = attachmentEnumerator.Current as BCOM.Attachment;
+
+            //        long elementID = attachment.ElementID;
+
+            //        BCOM.Element element = _design_file.GetElementByID64(elementID);
+
+            //        BCOM.ElementCache elementCache = element.Cache;
+            //        BCOM.ElementCache controlElementCache = attachment.ControlElementCache;
+            //    }
+            //}
+            #endregion
+
+            #region Three
+            //new TestRDLLImport();
+
+            //BCOM.LineStyles lineStyles = _design_file.LineStyles;
+            //var countDF = _design_file.Levels.Count;
+            //var lineStylesEnum = lineStyles.GetEnumerator();
+            //while (lineStylesEnum.MoveNext())
+            //{
+            //    BCOM.LineStyle lineStyle = lineStylesEnum.Current as BCOM.LineStyle;
+
+            //    string lineName = lineStyle.Name;
+            //}
+
+            //var countMF = _model_reference.Levels.Count;
+
+            //var enumAttachment = _model_reference.Attachments.GetEnumerator();
+            //while (enumAttachment.MoveNext())
+            //{
+            //    BCOM.Attachment attachment = enumAttachment.Current as BCOM.Attachment;
+            //}
+            #endregion
+
+            //ECWorker();
+
+            ECWorker1();
+
+            //ReadProperty();
+        }
+
+        public void ECWorker()
+        {
+            DgnUtilities instance2 = DgnUtilities.GetInstance();
+            //ECInstanceList allInstancesFromDgn = instance2.GetAllInstancesFromDgn("PIPE");
+            ECInstanceList allInstancesFromDgn = instance2.GetAllInstancesFromDgn("PIPING_NETWORK_SYSTEM");
+            
+            var allInstancesEnumerator = allInstancesFromDgn.GetEnumerator();
+
+            while (allInstancesEnumerator.MoveNext())
+            {
+                IECInstance instance = allInstancesEnumerator.Current;
+                var obj = instance.ReferenceObject as Bentley.Internal.MicroStation.Elements.Cell;
+                string IDInstance = instance.InstanceId;
+
+                sw.WriteLine(instance.ClassDefinition.Name);
+                sw.WriteLine(instance.ClassDefinition.DisplayLabel);
+                sw.WriteLine(instance.ClassDefinition.Description);
+                sw.WriteLine(instance.InstanceId);
+
+                var instanceEnumerator = instance.GetEnumerator();
+                while (instanceEnumerator.MoveNext())
+                {
+                    IECPropertyValue propertyValue = instanceEnumerator.Current;
+                    
+                    string name = propertyValue.AccessString;
+                    string value = propertyValue.StringValue;
+
+                    sw.WriteLine("     " + name + " - " + value + " " + propertyValue.XmlStringValue);
+                }
+
+                sw.WriteLine(new String('#', 100));
+            }
+        }
+        public void ECWorker1()
+        {
+            Bentley.ECSystem.Session.ECSession eCSession = Bentley.ECSystem.Session.SessionManager.CreateSession();
+            Bentley.Interop.MicroStationDGN.Application comApp = _app;
+            string text1 = Bentley.ECPlugin.Common.ECRepositoryConnectionHelper.BuildLocation(comApp.ActiveDesignFile.FullName, comApp.ActiveModelReference.Name);
+            Bentley.ECSystem.Repository.RepositoryConnectionService service = Bentley.ECSystem.Repository.RepositoryConnectionServiceFactory.GetService();
+            DgnECConnectionOptions dgnECConnectionOptions = new DgnECConnectionOptions();
+            dgnECConnectionOptions.ReferenceModelScope = (ReferenceModelScopeOptions)(0);// ReferenceModelScopeOptions.
+            dgnECConnectionOptions.AllowEditing = (true);
+            var m_dgnECConnection = service.Open(eCSession, DgnECPersistence.PluginID, text1, dgnECConnectionOptions.ConnectionInfoObject, null);
+
+            ECInstanceList RelDHSList = Bentley.Plant.Utilities.DgnUtilities.GetInstance().GetRelationshipInstances("PIPING_NETWORK_SYSTEM", "PIPING_NETWORK_SEGMENT", "PIPELINE_HAS_SEGMENT", m_dgnECConnection);
+            List<string> PipeHasSupportList = new List<string>();
+        }
+        public void ReadProperty()
+        {
+            BCOM.ElementEnumerator elements = _model_reference.Scan();
+
+            while (elements.MoveNext())
+            {
+                BCOM.Element element = elements.Current;
+
+                if (element.IsGraphical)
+                {
+                    string id = element.ID.ToString();
+                    sw.WriteLine(id);
+
+                    BCOM.PropertyHandler propery_handler = _app.CreatePropertyHandler(element);
+                    
+                    foreach (string field in propery_handler.GetAccessStrings())
+                    {
+                        try
+                        {
+                            if (propery_handler.SelectByAccessString(field))
+                            {
+                                sw.WriteLine("     " + field + " - " + propery_handler.GetDisplayString());
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            sw.WriteLine("Error : Model -> GetProperties: " + field + " - " + ex.Message);
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+*****************************************************************************
+
+BCOM.PropertyHandler propertyHandler = app.CreatePropertyHandler(attachment);
+
+                    string[] propertyNames = propertyHandler.GetAccessStrings();
+
+                    foreach(string propertyName in propertyNames)
+                    {
+                        try
+                        {
+                            if (propertyHandler.SelectByAccessString(propertyName))
+                                sw.WriteLine(propertyName + " - " + propertyHandler.GetDisplayString());
+                        }
+                        catch(Exception exx)
+                        {
+                            messageList.Add(exx.Message);
+                        }
+
+                    }
+
+
+VisibleEdgeDisplay - Динамически
+LogicalName - 
+AttachName - площадки.dgn
+FoundFullPath - 
+ModelName - 
+Description - Master Model
+Presentation - Каркасное 
+NamedGroup - 
+Revision - Нет хронологии
+Level - 
+NestedAttachments - Активное вложение
+NestDepth - 2
+GeoCS - 
+Slot - 7
+ActivateStatus - Только для чтения
+DisplayOverrides - Разрешить
+NewLevelDisplay - Переменная конфигурации
+GlobalLineStyleScale - Основной
+Display - Выкл
+Snap - Вкл
+Locate - Вкл
+TreatAttachAsElement - Выкл
+TrueScale - Вкл
+ScaleLineStyles - Вкл
+ClipFront - Выкл
+ClipBack - Выкл
+DisplayRasterRefs - Вкл
+IgnoreAttachmentForLiveNest - Выкл
+UseLights - Вкл
+PlotAs3D - Выкл
+UseActiveAnnotationScale - Вкл
+Anonymous - Выкл
+Offset - 0.00, 0.00, 0.00
+Priority - 0
+Transparency - 0
+Scale - 1.00000
+DetailScale - Полный размер 1=1
+SymbologyTemplate - Нет
+RotationAngle - 0°

@@ -1,0 +1,76 @@
+﻿    //Имя(LcOaSceneBaseUserName):23_Т120_ОБОРУДОВАНИЕ_.dgn
+    //Тип(LcOaSceneBaseClassUserName):Ссылка
+    //Внутренний тип(LcOaSceneBaseClassName):LcDgnReference
+    //GUID(LcOaNodeGuid):391a248f-8466-59f3-99ee-a460a83a949e
+    //Значок(LcOaNodeIcon):Группа
+    //Скрытый(LcOaNodeHidden):Нет
+    //Обязательный(LcOaNodeRequired):Нет
+    //Материал(LcOaNodeMaterial):
+    //Файл источника(LcOaNodeSourceFile):T120-TX-EQP.dgn
+
+
+    //Имя(LcOaSceneBaseUserName):Оборудование
+    //Тип(LcOaSceneBaseClassUserName):Уровень
+    //Внутренний тип(LcOaSceneBaseClassName):LcDgnLevel
+    //GUID(LcOaNodeGuid):15db162e-9086-523a-927f-fce18577f4d8
+    //Значок(LcOaNodeIcon):Слой
+    //Скрытый(LcOaNodeHidden):Нет
+    //Обязательный(LcOaNodeRequired):Нет
+    //Материал(LcOaNodeMaterial):Цвет 55
+    //Файл источника(LcOaNodeSourceFile):T120-TX-EQP.dgn
+    //Слой(LcOaNodeLayer):Оборудование
+
+    //Имя(LcOaSceneBaseUserName):Cell
+    //Тип(LcOaSceneBaseClassUserName):Ячейка
+    //Внутренний тип(LcOaSceneBaseClassName):LcDgnCell
+    //GUID(LcOaNodeGuid):20e2b57e-6bb4-5dbd-b5e9-ed7ef56e0759
+    //Значок(LcOaNodeIcon):Группа
+    //Скрытый(LcOaNodeHidden):Нет
+    //Обязательный(LcOaNodeRequired):Нет
+    //Материал(LcOaNodeMaterial):Цвет 55
+    //Файл источника(LcOaNodeSourceFile):T120-TX-EQP.dgn
+    //Слой(LcOaNodeLayer):Оборудование
+
+
+    //Тип(LcOaSceneBaseClassUserName):Твердое тело
+    //Внутренний тип(LcOaSceneBaseClassName):LcDgnSolid
+    //GUID(LcOaNodeGuid):ffa1bd47-8bc3-577d-b3e4-19aabaaa2647
+    //Значок(LcOaNodeIcon):Геометрия
+    //Скрытый(LcOaNodeHidden):Нет
+    //Обязательный(LcOaNodeRequired):Нет
+    //Материал(LcOaNodeMaterial):Цвет 2
+    //Файл источника(LcOaNodeSourceFile):T120-TX-EQP.dgn
+    //Слой(LcOaNodeLayer):Оборудование
+
+
+    //Тип(LcOaSceneBaseClassUserName):Твердое тело
+    //Внутренний тип(LcOaSceneBaseClassName):LcDgnSolid
+    //GUID(LcOaNodeGuid):ffa1bd47-8bc3-577d-b3e4-19aabaaa2647
+    //Значок(LcOaNodeIcon):Геометрия
+    //Скрытый(LcOaNodeHidden):Нет
+    //Обязательный(LcOaNodeRequired):Нет
+    //Материал(LcOaNodeMaterial):Цвет 2
+    //Файл источника(LcOaNodeSourceFile):T120-TX-EQP.dgn
+    //Слой(LcOaNodeLayer):Оборудование
+
+
+    //Имя(LcOaSceneBaseUserName):Перекрытие
+    //Тип(LcOaSceneBaseClassUserName):Перекрытия: Перекрытие: ADSK_Бетон_В25 Фо7
+    //Внутренний тип(LcOaSceneBaseClassName):LcRevitComposite
+    //GUID(LcOaNodeGuid):120e00b3-88b7-4b81-b331-280a0a337bc6
+    //Значок(LcOaNodeIcon):Составной объект
+    //Скрытый(LcOaNodeHidden):Нет
+    //Обязательный(LcOaNodeRequired):Нет
+    //Материал(LcOaNodeMaterial):ADSK_Бетон_В25 армированный
+    //Файл источника(LcOaNodeSourceFile):Воронеж Т120.rvt
+    //Слой (LcOaNodeLayer):КЖ1. 0.000
+
+    //Имя(LcOaSceneBaseUserName):ADSK_Бетон_В5 подготовка
+    //Тип(LcOaSceneBaseClassUserName):Твердое тело
+    //Внутренний тип(LcOaSceneBaseClassName):LcRevitSolid
+    //Значок(LcOaNodeIcon):Геометрия
+    //Скрытый(LcOaNodeHidden):Нет
+    //Обязательный(LcOaNodeRequired):Нет
+    //Материал(LcOaNodeMaterial):ADSK_Бетон_В5 подготовка
+    //Файл источника(LcOaNodeSourceFile):Воронеж Т120.rvt
+    //Слой (LcOaNodeLayer):КЖ1. 0.000

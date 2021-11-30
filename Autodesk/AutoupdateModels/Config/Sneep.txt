@@ -1,0 +1,737 @@
+﻿******************************************************************************************************************
+GraderFiles v1
++++++++++++++++
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+
+namespace AutoupdateModels.App
+{
+    class GraderFiles
+    {
+        #region property
+
+        Source.Config _config;
+        Autoupdate _autoApp;
+
+        Dictionary<string, List<string>> _type_files; // type files (nwd, nwc, nwf, dwg, dgn, rvt, fbx), list files
+        string _folder_save; // folder path
+
+        Dictionary<string, string> _group_name; // name group, name file (nwd)
+        Dictionary<string, List<string>> _group_files; // name group, list files (nwd, nwc, nwf, dwg, dgn, rvt, fbx)
+        Dictionary<string, string> _folder_save_group; // name group, folder path
+
+        Structure.OneFiles Files;
+        Structure.GroupFiles GFiles;
+
+        #endregion
+
+        public GraderFiles()
+        {
+            _config = Source.Config.Instance;
+
+            _type_files = _config.TypeFiles;
+            _folder_save = _config.FolderSave;
+
+            _group_name = _config.GroupName;
+            _group_files = _config.GroupFiles;
+            _folder_save_group = _config.FolderSaveGroup;
+
+            Files = new Structure.OneFiles();
+            GFiles = new Structure.GroupFiles();
+        }
+
+        #region one files
+        private void OneFilesHandler()
+        {
+            if (!Directory.Exists(_folder_save))
+            {
+                _folder_save = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "_one_files" + Path.DirectorySeparatorChar;
+            }
+
+            // Init folder and list
+            Files.folder = _folder_save;
+            Files.list = new List<Structure.TypeFiles>();
+
+            foreach (KeyValuePair<string, List<string>> data in _type_files)
+            {
+                if(Files.list.Count == 0)
+                {
+                    Structure.TypeFiles t = new Structure.TypeFiles();
+                    Files.list.Add(t);
+                }
+
+                for(int i = 0; i < Files.list.Count; i++)
+                {
+                    if(Files.list[i].type == data.Key)
+                    {
+                        Files.list[i].files = data.Value;
+                    } 
+                }
+            }
+
+
+
+
+
+            //foreach (KeyValuePair<string, List<string>> data in _type_files)
+            //{
+            //    bool file_extension = false;
+
+                //    foreach (Structure.TypeFiles type in Files.list)
+                //    {
+                //        if (type.type.Equals(data.Key))
+                //            file_extension = true;
+                //    }
+
+                //    if (file_extension)
+                //    {
+
+                //        foreach (string file in data.Value)
+                //        {
+
+                //        }
+                //    }
+                //    else
+                //    {
+
+                //    }
+                //}
+        }
+        #endregion
+
+        #region group files
+        private void GroupFilesHandler()
+        {
+            // 
+            foreach(KeyValuePair<string, string> group_dir in _folder_save_group)
+            {
+                if (_group_name.ContainsKey(group_dir.Key))
+                {
+                    if (!Directory.Exists(group_dir.Value))
+                    {
+                        _folder_save_group[group_dir.Key] = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "_group_files" + Path.DirectorySeparatorChar;
+                    }
+                }
+            }
+        }
+        #endregion
+    }
+}
+
+
+******************************************************************************************************************
+Config v1
++++++++++
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+
+namespace AutoupdateModels.Source
+{
+    class Config
+    {
+        public static object locker = new object();
+        public bool InitFlag { get; private set; }
+        public string InitMessage { get; private set; }
+        public string ConfigurationFile { get; private set; }
+        public int LoopPause { get; private set; }
+        public int CopyFilePause { get; private set; }
+        public Dictionary<string, string> GroupName { get; private set; }
+        public Dictionary<string, List<string>> GroupFiles { get; private set; }
+        public List<string> Files { get; private set; }
+        public Dictionary<string, List<string>> TypeFiles { get; private set; }
+        public string FolderSave { get; private set; }
+        public Dictionary<string,string> FolderSaveGroup { get; private set; }
+        public List<string> LockedFiles { get; set; }
+
+
+        private static readonly Lazy<Config> lazy = new Lazy<Config>(() => new Config());
+
+        public static Config Instance
+        {
+            get { lock (locker) { return lazy.Value; } }
+        }
+
+        private Config()
+        {
+            Init();
+        }
+
+        // Init config
+        #region Init config           
+        private void Init()
+        {
+            ConfigurationFile = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "Config\\Set.d";
+
+            // Init property
+            GroupName = new Dictionary<string, string>();
+            GroupFiles = new Dictionary<string, List<string>>();
+            FolderSaveGroup = new Dictionary<string, string>();
+            Files = new List<string>();
+            TypeFiles = new Dictionary<string, List<string>>();
+            LockedFiles = new List<string>();
+
+            if (File.Exists(ConfigurationFile))
+            {
+                using (StreamReader sr = new StreamReader(ConfigurationFile))
+                {
+                    string line = "";
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if(line.Contains("pause loop") && !line.Contains("##"))
+                        {
+                            // Pause Loop
+                            LoopPause = SetPause(line);
+                        }
+                        if (line.Contains("pause copy file") && !line.Contains("##"))
+                        {
+                            // Pause Copy file to server
+                            CopyFilePause = SetPause(line);
+                        }
+                        if (line.Contains("file nwf link") && !line.Contains("##"))
+                        {
+                            // All nwf files
+                            SetTypeFile("file nwf link", "nwf", line);
+                        }
+                        if (line.Contains("file dgn link") && !line.Contains("##"))
+                        {
+                            // All dgn files
+                            SetTypeFile("file dgn link", "dgn", line);
+                        }
+                        if (line.Contains("file dwg link") && !line.Contains("##"))
+                        {
+                            // All dwg files
+                            SetTypeFile("file dwg link", "dwg", line);
+                        }
+                        if (line.Contains("file rvt link") && !line.Contains("##"))
+                        {
+                            // All rwt files
+                            SetTypeFile("file rvt link", "rvt", line);
+                        }
+                        if (line.Contains("file fbx link") && !line.Contains("##"))
+                        {
+                            // All fbx files
+                            SetTypeFile("file fbx link", "fbx", line);
+                        }
+                        if (line.Contains("group name") && !line.Contains("##"))
+                        {
+                            // Add group name
+                            string[] data = line.Replace("group name", "").Trim().Split('>');
+                            GroupName.Add(data[0].Trim(), data[1].Trim());
+                        }
+                        if (line.Contains("group save file") && !line.Contains("##"))
+                        {
+                            // File to group
+                            SetGroupFiles(line);
+                        }
+                        if (line.Contains("folder save file") && !line.Contains("##"))
+                        {
+                            // Path one folder save
+                            FolderSave = line.Replace("folder save file", "").Trim();
+                        }
+                        if (line.Contains("folder save group") && !line.Contains("##"))
+                        {
+                            // Path group folder
+                            SetFolderSaveGroup(line);
+                        }
+                    }
+                }
+
+                InitFlag = true;
+                InitMessage = "initialization was successful";
+            }
+            else
+            {
+                InitFlag = false;
+                InitMessage = "initialization failed";
+            }
+        }
+
+        #region Handler line init
+        private int SetPause(string line)
+        {
+            int time = 0;
+            if (line.Contains("sec"))
+            {
+                int sec = 0;
+                try { sec = Convert.ToInt32(line.Replace("pause loop", "").Replace("pause copy file", "").Replace("sec", "").Trim()); }
+                catch { }
+                time = sec * 1000;
+            }
+            if (line.Contains("min"))
+            {
+                int min = 0;
+                try { min = Convert.ToInt32(line.Replace("pause loop", "").Replace("pause copy file", "").Replace("min", "").Trim()); }
+                catch { }
+                time = min * 1000 * 60;
+            }
+            if (line.Contains("hour"))
+            {
+                int hour = 0;
+                try { hour = Convert.ToInt32(line.Replace("pause loop", "").Replace("pause copy file", "").Replace("hour", "").Trim()); }
+                catch { }
+                time = hour * 1000 * 60 * 60;
+            }
+            if (line.Contains(":"))
+            {
+                string str = line.Replace("pause loop", "").Replace("pause copy file", "").Trim();
+
+                var arr = str.Split(':');
+
+                int sec = 0;
+                int min = 0;
+                int hour = 0;
+
+                try { sec = Convert.ToInt32(arr[2]); }
+                catch { }
+                try { min = Convert.ToInt32(arr[1]); }
+                catch { }
+                try { hour = Convert.ToInt32(arr[0]); }
+                catch { }
+
+                time = sec * 1000 * min * 60 * hour * 60;
+            }
+            return time;
+        }
+
+        private void SetTypeFile(string replace, string type, string line)
+        {
+            string file = line.Replace(replace, "").Trim();
+            if (TypeFiles.ContainsKey(type))
+            {
+                TypeFiles[type].Add(file);
+            }
+            else
+            {
+                TypeFiles[type] = new List<string>();
+                TypeFiles[type].Add(file);
+            }
+        }
+
+        private void SetGroupFiles(string line)
+        {
+            line = line.Replace("group save file", "").Trim();
+            string group = line.Split('>')[0].Trim();
+            string file = line.Split('>')[0].Trim();
+
+            if (GroupFiles.ContainsKey(group))
+            {
+                GroupFiles[group].Add(file);
+            }
+            else
+            {
+                GroupFiles[group] = new List<string>();
+                GroupFiles[group].Add(file);
+            }
+        }
+
+        private void SetFolderSaveGroup(string line)
+        {
+            line = line.Replace("folder save group", "").Trim();
+
+            string group = line.Split('>')[0].Trim();
+            string folder = line.Split('>')[1].Trim();
+
+            FolderSaveGroup[group] = folder;
+        }
+        #endregion
+        #endregion
+    }
+}
+
+******************************************************************************************************************
+file link D:\name.nwf
+file link D:\name.dgn
+file link D:\name.dwg
+file link D:\name.rvt
+file link D:\name1.rvt
+file link D:\name2.rvt
+file link D:\name.fbx
+group name DSSK_T200 > T200.nwd
+group name DSSK_T170 > T170.nwd
+group name DSSK_T400 > T400.nwd
+group name DSSK_T400 > T500.nwd
+group file DSSK_T200 > D:\name.dwg
+group file DSSK_T200 > D:\name1.dwg
+group file DSSK_T200 > D:\name2.dwg
+group file DSSK_T300 > D:\name2.dwg
+group file DSSK_T300 > D:\name3.dwg
+group file DSSK_T300 > D:\name2.dwg
+group file DSSK_T400 > D:\name.dwg
+group file DSSK_T400 > D:\name1.dwg
+group file DSSK_T400 > D:\name2.dwg
+group file DSSK_T170 > D:\name.dwg
+group name DSSK_T300 > T500.nwd
+group file DSSK_T170 > D:\name1.dwg
+group file DSSK_T170 > D:\name2.dwg
+group file DSSK_T170 > D:\name3.dwg
+group file DSSK_T170 > D:\name2.dwg
+folder save D:\...
+group folder DSSK_T200 > D:\...
+group folder DSSK_T170 > D:\...
+group folder DSSK_T400 > D:\...
+
+******************************************************************************************************************
+Task
+++++++++
+//for(int i = 0; i < 100; i++)
+//{
+//    Task<long> get_free_memory = new Task<long>(Source.SysInfo.GetFreeMemory);
+//    get_free_memory.Start();
+//    Source.Display.Show(get_free_memory.Result.ToString(), "success", 1);
+//    get_free_memory.Wait();
+//    Thread.Sleep(5000);
+//}
+******************************************************************************************************************
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using Autodesk.Navisworks.Api.Automation;
+using System.Threading;
+using System.Diagnostics;
+
+namespace AutoupdateModels.App
+{
+    public delegate void CreateprocessDelegate();
+
+    #region Autoupdate
+    // To assemble a single file
+    class Autoupdate
+    {
+        Source.Config _config = Source.Config.Instance;
+
+        // Event ???
+        public event CreateprocessDelegate CreateProcessEvent;
+        
+        string in_file;
+        string out_file;
+        string in_folder;
+        string out_folder;
+
+        public Autoupdate()
+        {
+            List<Structure.AutoApp> app_list = new List<Structure.AutoApp>();
+
+            foreach(App.Structure.Files Files in _config.files_list)
+            {
+                out_folder = Files.folder;
+
+                foreach(string file in Files.files)
+                {
+                    in_file = Path.GetFileName(file);
+                    out_file = Path.GetFileNameWithoutExtension(file) + ".nwd";
+                    in_folder = Path.GetDirectoryName(file);
+                    
+                    // To set the parameters to send to task
+                    string[] param = new string[4];
+                    param[0] = in_file;
+                    param[1] = out_file;
+                    param[2] = in_folder;
+                    param[3] = out_folder;
+                    
+                    // Run task
+                    Task<Structure.AutoApp> task = new Task<Structure.AutoApp>(MakeUpdate, param);
+                    task.Start();
+                    task.Wait();
+
+                    Structure.AutoApp app = task.Result;
+
+                    app_list.Add(app);
+
+                    // delay for correct start Roamer
+                    Thread.Sleep(15000);
+                }
+            }
+        }
+
+        // Task run method
+        // Generation AutoApp object, initialization fields and run working
+        public Structure.AutoApp MakeUpdate(object param)
+        {
+            // This in_file, out_file, in_folder, out_folder
+            Structure.AutoApp auto_app = null;
+
+            string[] data = (string[])param;
+
+            // Run Roamer [Task]
+            // Run TrackingProcess [Task]
+
+            #region Structure AutoApp
+            //bool flag_first = true;
+            //long max_size_memory = 0;
+            //DateTime start_app_time;
+            //DateTime end_app_time;
+            //DateTime build_app_time;
+            //string in_file;
+            //string out_file;
+            //string in_folder;
+            //string out_folder;
+            //int id_process;
+            //NavisworksApplication roamer;
+            #endregion
+
+            if (RunnerUpdate.app_list.Count != 0)
+            {
+                bool flag_in_stock = false;
+
+                foreach(Structure.AutoApp current_auto_app in RunnerUpdate.app_list)
+                {
+                    if(current_auto_app.in_file == data[0])
+                    {
+                        flag_in_stock = true;
+                        auto_app = current_auto_app;
+                    }
+                }
+
+                if (flag_in_stock)
+                {
+                    if (auto_app.flag_first)
+                    {
+                        //
+                        auto_app.in_file = data[0];
+                        auto_app.out_file = data[1];
+                        auto_app.in_folder = data[2];
+                        auto_app.out_folder = data[3];
+                        auto_app.roamer = new NavisworksApplication();
+                        auto_app.id_process = GetProcessId();
+                    }
+                    else
+                    {
+                        // re build
+                        // run in oter task
+
+                    }
+                }
+                else
+                {
+                    auto_app = new Structure.AutoApp();
+                    auto_app.in_file = data[0];
+                    auto_app.out_file = data[1];
+                    auto_app.in_folder = data[2];
+                    auto_app.out_folder = data[3];
+                    auto_app.roamer = new NavisworksApplication();
+                    auto_app.id_process = GetProcessId();
+
+                    // task tracking process -> id
+                    RunnerUpdate.app_list.Add(auto_app);
+                }
+            }
+            else
+            {
+                // Initialization new Roamer process
+                auto_app = new Structure.AutoApp();
+                auto_app.in_file = data[0];
+                auto_app.out_file = data[1];
+                auto_app.in_folder = data[2];
+                auto_app.out_folder = data[3];
+                auto_app.roamer = new NavisworksApplication();
+                auto_app.id_process = GetProcessId();
+                
+                // task tracking process -> id
+                RunnerUpdate.app_list.Add(auto_app);
+            }
+
+            // Test init
+            if(auto_app != null)
+            {
+                Process p = Process.GetProcessById(auto_app.id_process);
+                Source.Display.Show(data[2] + " - " + data[0], "secondary", 1);
+                Source.Display.Show(p.StartTime.ToString() + " - " + auto_app.id_process.ToString(), "secondary", 2);
+            }
+            else
+            {
+                Source.Display.Show(data[2] + " - " + data[0], "secondary", 1);
+                Source.Display.Show(" is null  ", "secondary", 2);
+            }
+
+            return auto_app;
+        }
+
+
+        // Return id roamer process
+        public int GetProcessId()
+        {
+            int id = 0;
+            Process[] processes = Process.GetProcesses();
+            int count = processes.Length;
+            for(int i = 0; i < count; i++)
+            {
+                if(processes[i].ProcessName == "Roamer")
+                {
+                    bool flag = true;
+                    foreach (Structure.AutoApp app in RunnerUpdate.app_list)
+                    {
+                        if(app.id_process == processes[i].Id)
+                        {
+                            flag = false;
+                        }
+                    }
+                    if (flag)
+                    {
+                        id = processes[i].Id;
+                    }
+                }
+            }
+            return id;
+        }
+
+    }
+#endregion
+
+    #region AutoapdateGroup
+    // To collect a group of files
+    class AutoapdateGroup
+    {
+        public AutoapdateGroup()
+        {
+
+        }
+    }
+    #endregion
+}
+
+******************************************************************************************************************
+folder save D:\ModelUpdate\OneFiles\
+file link D:\ProjectFolder\Files_For_Test\004_9_TM\trubi_200.dgn
+file link D:\ProjectFolder\Files_For_Test\Models\5-12839-Equipment_TX.dwg
+file link D:\ProjectFolder\Files_For_Test\TestAutoUpdate\VSK.nwf
+file link D:\ProjectFolder\Files_For_Test\TestAutoUpdate\0094.nwf
+
+
+
+group name 004_9_TM > 004_9_TM.nwd
+group file 004_9_TM > D:\ProjectFolder\Files_For_Test\004_9_TM\equip_2.dgn
+group file 004_9_TM > D:\ProjectFolder\Files_For_Test\004_9_TM\trubi_100.dgn
+group file 004_9_TM > D:\ProjectFolder\Files_For_Test\004_9_TM\trubi_200.dgn
+group file 004_9_TM > D:\ProjectFolder\Files_For_Test\004_9_TM\trubi_300.dgn
+group file 004_9_TM > D:\ProjectFolder\Files_For_Test\004_9_TM\trubi_400.dgn
+group folder 004_9_TM > D:\ModelUpdate\004_9_TM\
+
+
+******************************************************************************************************************
+    class CompetitorProcess
+    {
+        // {in param}
+
+        // long total_memory (byte) [Source.SysInfo] static
+        // long free_memory (byte) [Source.SysInfo] dynamic
+
+        // long max_memory_process (byte) [Source.TrackingProcess] ???
+        // long max_memory (byte) [App.Structure.Files (new field) and App.Structure.GroupFiles (new field)]
+
+        // long current_memory_process (byte) [Source.TrackingProcess]
+
+
+        // {out param}
+
+        // int 0 [continue]
+        // int id_process [pause]
+
+        private int GetCompetitor()
+        {
+            // init 
+            
+            // stopper
+            return 0;
+        }
+
+        private void Initialization()
+        {
+            // long total_memory
+            // free_memory
+
+            // max_process_one
+            // max_process_two
+
+            // current_process_one
+            // current_process_two
+
+            // return value (default 0)
+
+            // residue_one (default 0) [free_memory - current_process_one]
+            // residue_two (default 0) [free_memory - current_process_one]
+
+        }
+
+        private void Evaluate()
+        {
+
+        }
+    }
+******************************************************************************************************************
+// Single model
+folder save D:\ModelUpdate\OneFiles\
+file link D:\ProjectFolder\Files_For_Test\004_9_TM\trubi_200.dgn
+file link D:\ProjectFolder\Files_For_Test\Models\5-12839-Equipment_TX.dwg
+file link D:\ProjectFolder\Files_For_Test\TestAutoUpdate\VSK.nwf
+file link D:\ProjectFolder\Files_For_Test\TestAutoUpdate\0094.nwf
+file link D:\ProjectFolder\Files_For_Test\TestAutoUpdate\0094_test.nwf
+
+
+// Group model
+group name 004_9_TM > 004_9_TM.nwd
+group file 004_9_TM > D:\ProjectFolder\Files_For_Test\004_9_TM\equip_2.dgn
+group file 004_9_TM > D:\ProjectFolder\Files_For_Test\004_9_TM\trubi_100.dgn
+group file 004_9_TM > D:\ProjectFolder\Files_For_Test\004_9_TM\trubi_200.dgn
+group file 004_9_TM > D:\ProjectFolder\Files_For_Test\004_9_TM\trubi_300.dgn
+group file 004_9_TM > D:\ProjectFolder\Files_For_Test\004_9_TM\trubi_400.dgn
+group folder 004_9_TM > D:\ModelUpdate\004_9_TM\
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************
+
+******************************************************************************************************************

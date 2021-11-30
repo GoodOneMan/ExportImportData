@@ -1,0 +1,4492 @@
+﻿Autodesk.Navisworks.Api Namespace
+
+public class AxisAndAngleResult
+Структурный результат, содержащий информацию об оси и угле для использования в различных операциях Navisworks.
+public double Angle { get; set; }
+public UnitVector3D Axis { get; set; }
+
+public class BoundingBox3D : NativeHandle
+Выровненный по оси 3D ограничивающий прямоугольник. Неизменный.
+Определяет ограниченную область в форме куба в трехмерном пространстве. Часто используется для представления экстентов объекта или набора объектов.
+
+public class VisibilityOverrides
+Видимость переопределяет.
+public ModelItemCollection Hidden { get; }
+
+public class Point3D : NativeHandle
+Представляет позицию в трехмерном пространстве. Неизменный.
+
+
+
+ComApi.InwOpSelection2 opSelection = opState.CurrentSelection as ComApi.InwOpSelection2;
+
+            ComApi.InwSelectionPathsColl pathColl = opSelection.Paths();
+
+            int count = 0;
+
+            foreach (ComApi.InwOaPath3 oaPath3 in pathColl)
+            {
+                count++;
+
+                ComApi.InwNodeFragsColl fragColl = oaPath3.Fragments();
+                foreach (ComApi.InwOaFragment3 oaFrag3 in fragColl)
+                {
+                    sw_test.WriteLine(count + " " + oaFrag3.GetType());
+                }
+            }
+
+
+
+########################################################################################################
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using Autodesk.Navisworks.Api;
+using System.Runtime.InteropServices;
+using ComApiBridge = Autodesk.Navisworks.Api.ComApi.ComApiBridge;
+using ComApi = Autodesk.Navisworks.Api.Interop.ComApi;
+
+namespace ExportGeometry.UnitsApp.Tests
+{
+    // DllImport
+    public static class HandlerVertex
+    {
+        [DllImport("HandlerVertex.dll", EntryPoint = "?fnHandlerVertex@@YAXHPEAN@Z", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void fnHandlerVertex(int arrSize, double[] arrVertex);
+    }
+
+    //
+    class Test_Five
+    {
+        ModelItemCollection modelItemcollection = Autodesk.Navisworks.Api.Application.ActiveDocument.CurrentSelection.SelectedItems;
+        ComApi.InwOpState opState = ComApiBridge.State;
+        List<Vertex> list = new List<Vertex>();
+
+        //
+        public Test_Five()
+        {
+            Run();
+        }
+
+        //
+        private void Run()
+        {
+            foreach (ModelItem modelItem in modelItemcollection.DescendantsAndSelf)
+            {
+                if (modelItem.HasGeometry)
+                {
+                    HandlerModelGeometry(modelItem.Geometry);
+                }
+            }
+        }
+
+        //
+        private void HandlerModelGeometry(ModelGeometry modelGeometry)
+        {
+            // Model Geomtry
+            // Идентификация модели ( имя, свойства, к чему относится )
+
+            ComApi.InwOaPath oaPath = ComApiBridge.ToInwOaPath(modelGeometry.Item);
+            CallbackGeomListenerFive callbkListener = new CallbackGeomListenerFive();
+            callbkListener.list = list;
+
+            foreach (ComApi.InwOaFragment3 fragment in oaPath.Fragments())
+            {
+
+                callbkListener.matrix = (Array)(object)fragment.GetLocalToWorldMatrix().Matrix;
+                fragment.GenerateSimplePrimitives(ComApi.nwEVertexProperty.eNORMAL, callbkListener);
+            }
+        }
+    }
+
+    #region InwSimplePrimitivesCB Class
+
+    class CallbackGeomListenerFive : ComApi.InwSimplePrimitivesCB
+    {
+        public Array matrix;
+        public List<Vertex> list;
+
+        public void Line(ComApi.InwSimpleVertex v1, ComApi.InwSimpleVertex v2){}
+
+        public void Point(ComApi.InwSimpleVertex v1){}
+
+        public void SnapPoint(ComApi.InwSimpleVertex v1){}
+
+        public void Triangle(ComApi.InwSimpleVertex v1, ComApi.InwSimpleVertex v2, ComApi.InwSimpleVertex v3)
+        {
+            
+            // color vertex
+            Array color_v1 = (Array)(object)v1.color;
+            Array color_v2 = (Array)(object)v2.color;
+            Array color_v3 = (Array)(object)v3.color;
+
+            // coordinate vertex
+            Array coor_v1 = (Array)(object)v1.coord;
+            Array coor_v2 = (Array)(object)v2.coord;
+            Array coor_v3 = (Array)(object)v3.coord;
+
+            // normal vertex
+            Array normal_v1 = (Array)(object)v1.normal;
+            Array normal_v2 = (Array)(object)v2.normal;
+            Array normal_v3 = (Array)(object)v3.normal;
+
+            // texture vertex
+            Array tex_v1 = (Array)(object)v1.tex_coord;
+            Array tex_v2 = (Array)(object)v2.tex_coord;
+            Array tex_v3 = (Array)(object)v3.tex_coord;
+
+            #region Generation Vertex 
+            double[] global_vertex = null;
+
+            global_vertex = Helpers.ConvertLCSToWCS.getCoordinate(matrix, coor_v1);
+            Vertex vertex_1 = new Vertex();
+            vertex_1.x = global_vertex[0];
+            vertex_1.y = global_vertex[1];
+            vertex_1.z = global_vertex[2];
+            vertex_1.u = Convert.ToDouble(tex_v1.GetValue(1));
+            vertex_1.v = Convert.ToDouble(tex_v1.GetValue(2));
+            list.Add(vertex_1);
+
+            global_vertex = Helpers.ConvertLCSToWCS.getCoordinate(matrix, coor_v1);
+            Vertex vertex_2 = new Vertex();
+            vertex_2.x = global_vertex[0];
+            vertex_2.y = global_vertex[1];
+            vertex_2.z = global_vertex[2];
+            vertex_2.u = Convert.ToDouble(tex_v1.GetValue(1));
+            vertex_2.v = Convert.ToDouble(tex_v1.GetValue(2));
+            list.Add(vertex_2);
+
+            global_vertex = Helpers.ConvertLCSToWCS.getCoordinate(matrix, coor_v1);
+            Vertex vertex_3 = new Vertex();
+            vertex_3.x = global_vertex[0];
+            vertex_3.y = global_vertex[1];
+            vertex_3.z = global_vertex[2];
+            vertex_3.u = Convert.ToDouble(tex_v1.GetValue(1));
+            vertex_3.v = Convert.ToDouble(tex_v1.GetValue(2));
+            list.Add(vertex_3);
+            #endregion
+        }
+    }
+    #endregion
+
+    #region Structur
+    struct Vertex {
+        public double x, y, z, u, v;
+    }
+    
+    #endregion
+}
+
+
+
+        //Test
+        Stopwatch watcher = Stopwatch.StartNew();
+        watcher.Start();
+        watcher.Stop();
+            System.Windows.Forms.MessageBox.Show(watcher.Elapsed.Milliseconds.ToString());
+            
+            GC.Collect();
+
+
+
+####################################################################################################################33
+			//int count = 1;
+            //Stopwatch watch = Stopwatch.StartNew();
+
+            //#region 1
+            //foreach(ModelItem model_item in select_item.Descendants)
+            //{
+            //    watch.Start();
+
+            //    string user_name = model_item.ClassDisplayName;
+            //    string class_namea = model_item.ClassName;
+            //    string class_user_name = model_item.DisplayName;
+            //    int hash_code = model_item.GetHashCode();
+
+            //    sw.WriteLine(count + " - ###############################################");
+            //    sw.WriteLine(user_name);
+            //    sw.WriteLine(class_namea);
+            //    sw.WriteLine(class_user_name);
+            //    sw.WriteLine(hash_code);
+
+            //    if (model_item.IsCollection)
+            //    {
+            //        sw.WriteLine("IsCollection");
+            //    }
+            //    else if (model_item.IsComposite)
+            //    {
+            //        sw.WriteLine("IsComposite");
+            //    }
+            //    else if (model_item.IsDisposed)
+            //    {
+            //        sw.WriteLine("IsDisposed");
+            //    }
+            //    else if (model_item.IsFrozen)
+            //    {
+            //        sw.WriteLine("IsFrozen");
+            //    }
+            //    else if (model_item.IsHidden)
+            //    {
+            //        sw.WriteLine("IsHidden");
+            //    }
+            //    else if (model_item.IsInsert)
+            //    {
+            //        sw.WriteLine("IsInsert");
+            //    }
+            //    else if (model_item.IsLayer)
+            //    {
+            //        sw.WriteLine("IsLayer");
+            //    }
+            //    else if (model_item.IsReadOnly)
+            //    {
+            //        sw.WriteLine("IsReadOnly");
+            //    }
+            //    else if (model_item.IsRequired)
+            //    {
+            //        sw.WriteLine("IsRequired");
+            //    }
+
+            //    sw.WriteLine("" + Environment.NewLine);
+
+            //    count++;
+            //    sw.WriteLine("Watch - " + watch.ElapsedMilliseconds);
+            //    watch.Reset();
+            //}
+            //#endregion
+
+
+
+        //private void recursModel(ModelItem oParentModItem, Stopwatch watch, int count)
+        //{
+        //    foreach (ModelItem oSubModItem in oParentModItem.Children)
+        //    {
+        //        //Dump information of this item such as :
+        //        //oSubModItem.DisplayName
+        //        //recurs the children of this item
+        //        ComApi.InwOaPath oaPath = ComApiBridge.ToInwOaPath(oParentModItem);
+
+        //        foreach (ComApi.InwOaNode node in oaPath.Nodes())
+        //        {
+        //            watch.Start();
+
+        //            string user_name = node.UserName;
+        //            string class_namea = node.ClassName;
+        //            string class_user_name = node.ClassUserName;
+        //            int hash_code = node.GetHashCode();
+
+        //            sw.WriteLine(count + " - ###############################################");
+        //            sw.WriteLine(user_name);
+        //            sw.WriteLine(class_namea);
+        //            sw.WriteLine(class_user_name);
+        //            sw.WriteLine(hash_code);
+
+        //            if (node.IsPartition)
+        //            {
+        //                sw.WriteLine("IsPartition");
+        //            }
+        //            else if (node.IsLayer)
+        //            {
+        //                sw.WriteLine("IsLayer");
+        //            }
+        //            else if (node.IsInsert)
+        //            {
+        //                sw.WriteLine("IsInsert");
+        //            }
+        //            else if (node.IsGroup)
+        //            {
+        //                sw.WriteLine("IsGroup");
+        //            }
+        //            else if (node.IsGeometry)
+        //            {
+        //                sw.WriteLine("IsGeometry");
+        //            }
+        //            else if (node.IsOverrideHide)
+        //            {
+        //                sw.WriteLine("IsOverrideHide");
+        //            }
+        //            else if (node.IsOverrideMaterial)
+        //            {
+        //                sw.WriteLine("IsOverrideMaterial");
+        //            }
+        //            else if (node.IsOverrideShow)
+        //            {
+        //                sw.WriteLine("IsOverrideShow");
+        //            }
+        //            else if (node.IsOverrideTwoSided)
+        //            {
+        //                sw.WriteLine("IsOverrideTwoSided");
+        //            }
+                    
+
+        //            sw.WriteLine("" + Environment.NewLine);
+
+        //            count++;
+        //            sw.WriteLine("Watch - " + watch.ElapsedMilliseconds);
+        //            watch.Reset();
+        //        }
+
+        //        recursModel(oSubModItem, watch, count);
+        //    }
+        //}
+
+		####################################################################################################################
+			Dictionary<string, string> category_dic = new Dictionary<string, string>();
+
+            foreach(ModelItem model_item in select_item.DescendantsAndSelf)
+            {
+                //ComApi.InwOaPath3 oaPath = (ComApi.InwOaPath3)ComApiBridge.ToInwOaPath(model_item);
+                //ComApi.InwOaAttribute attribute = oaPath.FindAttribute("LcOaNode", true);
+                PropertyCategoryCollection category_collection = model_item.PropertyCategories;
+
+                foreach(PropertyCategory category in category_collection)
+                {
+                    //if (!category_dic.ContainsKey(category.Name) && !category_dic.ContainsValue(category.DisplayName))
+                    //{
+                    //    category_dic[category.Name] = category.DisplayName;
+                    //}
+
+                    try
+                    {
+                        DataPropertyCollection property_collection = category.Properties;
+
+                        foreach (DataProperty data in property_collection)
+                        {
+                            if (!category_dic.ContainsKey(data.Name.ToString()))
+                            {
+                                try
+                                {
+                                    category_dic[data.Name.ToString()] = data.DisplayName;
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        sw.WriteLine(ex.Message);
+                    }
+                    
+                }
+            }
+
+            foreach(KeyValuePair<string, string> dic in category_dic)
+            {
+                sw.WriteLine(dic.Key + "  " + dic.Value);
+            }
+
+
+			###############################################################################################################
+				ComApi.InwOaPath oPath = ComApiBridge.ToInwOaPath(model_item);
+
+                #region 1
+                // get properties collection of the path
+                //ComApi.InwGUIPropertyNode2 propn = (ComApi.InwGUIPropertyNode2)opState.GetGUIPropertyNode(oPath, true);
+
+                // create new property category
+                // (new tab in the properties dialog)
+                //ComApi.InwOaPropertyVec newPvec = (ComApi.InwOaPropertyVec)opState.ObjectFactory(ComApi.nwEObjectType.eObjectType_nwOaPropertyVec, null, null);
+
+                // create new property
+                //ComApi.InwOaProperty newP = (ComApi.InwOaProperty)opState.ObjectFactory( ComApi.nwEObjectType.eObjectType_nwOaProperty, null, null);
+                #endregion
+
+                #region 2
+
+                ComApi.InwOpSelectionSet2 oNewSelSet = (ComApi.InwOpSelectionSet2)(object)opState.ObjectFactory(ComApi.nwEObjectType.eObjectType_nwOpSelectionSet);
+
+                oNewSelSet.name = "MySet";
+
+
+
+                // create the find condition
+                ComApi.InwOpFindSpec nwFindSpec = (ComApi.InwOpFindSpec)(object)opState.ObjectFactory(ComApi.nwEObjectType.eObjectType_nwOpFindSpec);
+                ComApi.InwOpFindCondition nwFindCondition = (ComApi.InwOpFindCondition)(object)opState.ObjectFactory(ComApi.nwEObjectType.eObjectType_nwOpFindCondition);
+
+                nwFindCondition.SetAttributeNames("LcDgnElementId", "ID объекта");
+                //nwFindCondition.SetPropertyNames("LcOaNat64AttributeValue", "Значение");
+                nwFindCondition.Condition = ComApi.nwEFindCondition.eFind_HAS_ATTRIB;
+                //nwFindCondition.value = "39187";
+                
+                nwFindSpec.selection = null;
+                nwFindSpec.SearchMode = ComApi.nwESearchMode.eSearchMode_ALL_PATHS;
+                nwFindSpec.Conditions().Add(nwFindCondition);
+                // set the find condition to the selectionset
+                oNewSelSet.ImplicitFindSpec = nwFindSpec;
+                // add the selectionset to the collection
+                //opState.SelectionSets().Add(oNewSelSet);
+
+                ModelItemCollection coll = ComApiBridge.ToModelItemCollection(oNewSelSet.selection);
+                #endregion
+
+
+
+###########################################################################################################################
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using Autodesk.Navisworks.Api;
+using System.Runtime.InteropServices;
+using ComApiBridge = Autodesk.Navisworks.Api.ComApi.ComApiBridge;
+using ComApi = Autodesk.Navisworks.Api.Interop.ComApi;
+using System.Diagnostics;
+using System.Numerics;
+
+namespace ExportGeometry.UnitsApp.Tests
+{
+    // DllImport
+    public static class HandlerVertex
+    {
+        [DllImport("HandlerVertex.dll", EntryPoint = "?fnHandlerVertex@@YAXHPEAN@Z", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void fnHandlerVertex(int arrSize, double[] arrVertex);
+    }
+
+    //
+    class Test_Five
+    {
+        ModelItemCollection modelItemcollection = Autodesk.Navisworks.Api.Application.ActiveDocument.CurrentSelection.SelectedItems;
+        ComApi.InwOpState opState = ComApiBridge.State;
+
+        List<Vector3> vectors = new List<Vector3>();
+        List<int> faces = new List<int>();
+
+        StreamWriter sw = new StreamWriter(@"D:\vectors_test.txt");
+
+        // Test_Five()
+        public Test_Five()
+        {
+
+            Run();
+
+            WriteFile();
+
+            sw.Close();
+        }
+
+        // void Run()
+        private void Run()
+        {
+            foreach (ModelItem modelItem in modelItemcollection.DescendantsAndSelf)
+            {
+                if (modelItem.HasGeometry)
+                {
+                    HandlerModelGeometry(modelItem.Geometry);
+                }
+            }
+        }
+
+        // void HandlerModelGeometry(ModelGeometry modelGeometry)
+        private void HandlerModelGeometry(ModelGeometry modelGeometry)
+        {
+            // Model Geomtry
+            // Идентификация модели ( имя, свойства, к чему относится )
+            List<Vector3> vector_list = new List<Vector3>();
+            
+            ComApi.InwOaPath oaPath = ComApiBridge.ToInwOaPath(modelGeometry.Item);
+            CallbackGeomListenerFive callbkListener = new CallbackGeomListenerFive();
+
+            callbkListener.vector_list = vector_list;
+            callbkListener.face_list = faces;
+            callbkListener.index = vectors.Count;
+
+            foreach (ComApi.InwOaFragment3 fragment in oaPath.Fragments())
+            {
+                callbkListener.matrix = (Array)(object)fragment.GetLocalToWorldMatrix().Matrix;
+                fragment.GenerateSimplePrimitives(ComApi.nwEVertexProperty.eNORMAL, callbkListener);
+            }
+
+            vectors.AddRange(vector_list);
+        }
+
+        // Test
+        private void WriteFile()
+        {
+            sw.WriteLine("# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware");
+            sw.WriteLine("o Model_float");
+
+            foreach (Vector3 vector in vectors)
+            {
+                sw.WriteLine("v  " + vector.X + " " + vector.Y + " " + vector.Z);
+            }
+
+            for(int i = 0; i < faces.Count; i += 3)
+            {
+                sw.WriteLine("f " + (faces[i] + 1) + " " + (faces[i + 1] + 1) + " " + (faces[i + 2] + 1));
+            }
+        }
+    }
+
+    #region InwSimplePrimitivesCB Class
+
+    class CallbackGeomListenerFive : ComApi.InwSimplePrimitivesCB
+    {
+        public Array matrix;
+
+        public List<Vector3> vector_list;
+        public List<int> face_list;
+        public int index;
+
+        public void Line(ComApi.InwSimpleVertex v1, ComApi.InwSimpleVertex v2){}
+
+        public void Point(ComApi.InwSimpleVertex v1){}
+
+        public void SnapPoint(ComApi.InwSimpleVertex v1){}
+
+        public void Triangle(ComApi.InwSimpleVertex v1, ComApi.InwSimpleVertex v2, ComApi.InwSimpleVertex v3)
+        {
+
+            // color vertex
+            //Array color_v1 = (Array)(object)v1.color;
+            //Array color_v2 = (Array)(object)v2.color;
+            //Array color_v3 = (Array)(object)v3.color;
+
+            // coordinate vertex
+            Array coor_v1 = (Array)(object)v1.coord;
+            Array coor_v2 = (Array)(object)v2.coord;
+            Array coor_v3 = (Array)(object)v3.coord;
+
+            // Vector3 c1
+            //Vector3 c1 = Helpers.ConvertLCSToWCS.getCoordinate(matrix, coor_v1);
+            //int index_c1 = vector_list.IndexOf(c1);
+            //if (index_c1 == -1)
+            //{
+            //    vector_list.Add(c1);
+            //    face_list.Add(index);
+            //    index++;
+            //}
+            //else
+            //{
+            //    face_list.Add(index - (index_c1 + 1));
+            //}
+
+            // Vector3 c2
+            //Vector3 c2 = Helpers.ConvertLCSToWCS.getCoordinate(matrix, coor_v2);
+            //int index_c2 = vector_list.IndexOf(c2);
+            //if (index_c2 == -1)
+            //{
+            //    vector_list.Add(c2);
+            //    face_list.Add(index);
+            //    index++;
+            //}
+            //else
+            //{
+            //    face_list.Add(index - (index_c2 + 1));
+            //}
+
+            // Vector3 c3
+            //Vector3 c3 = Helpers.ConvertLCSToWCS.getCoordinate(matrix, coor_v3);
+            //int index_c3 = vector_list.IndexOf(c3);
+            //if (index_c3 == -1)
+            //{
+            //    vector_list.Add(c3);
+            //    face_list.Add(index);
+            //    index++;
+            //}
+            //else
+            //{
+            //    face_list.Add(index - (index_c3 + 1));
+            //}
+
+            // normal vertex
+            //Array normal_v1 = (Array)(object)v1.normal;
+            //Array normal_v2 = (Array)(object)v2.normal;
+            //Array normal_v3 = (Array)(object)v3.normal;
+
+            // texture vertex
+            //Array tex_v1 = (Array)(object)v1.tex_coord;
+            //Array tex_v2 = (Array)(object)v2.tex_coord;
+            //Array tex_v3 = (Array)(object)v3.tex_coord;
+        }
+    }
+    #endregion
+}
+
+###########################################################################################################################
+
+//------------------------------------------------------------------
+// NavisWorks Sample code
+//------------------------------------------------------------------
+
+// (C) Copyright 2018 by Autodesk Inc.
+
+// Permission to use, copy, modify, and distribute this software in
+// object code form for any purpose and without fee is hereby granted,
+// provided that the above copyright notice appears in all copies and
+// that both that copyright notice and the limited warranty and
+// restricted rights notice below appear in all supporting
+// documentation.
+
+// AUTODESK PROVIDES THIS PROGRAM "AS IS" AND WITH ALL FAULTS.
+// AUTODESK SPECIFICALLY DISCLAIMS ANY IMPLIED WARRANTY OF
+// MERCHANTABILITY OR FITNESS FOR A PARTICULAR USE.  AUTODESK
+// DOES NOT WARRANT THAT THE OPERATION OF THE PROGRAM WILL BE
+// UNINTERRUPTED OR ERROR FREE.
+//------------------------------------------------------------------
+
+#include "Raw.h"
+
+#include <atlbase.h>
+#include <atlcom.h>
+#import "C:\Program Files\Autodesk\Navisworks Simulate 2017\lcodieD.dll"  rename_namespace("raw")
+
+using namespace System;
+
+CComModule _Module;
+long please::_geonodecount;
+long please::_fragscount;
+
+ref class dateClass {
+public:
+	static System::DateTime stTime;
+	static System::IO::StreamWriter^ outfile;
+	static System::IO::StreamWriter^ vertexFile;
+};
+
+class CSeeker : public ATL::CComObjectRoot, public IDispatchImpl<raw::InwSeekSelection>
+{
+public:
+	BEGIN_COM_MAP(CSeeker)
+		COM_INTERFACE_ENTRY(raw::InwSeekSelection)
+	END_COM_MAP()
+
+	STDMETHOD(raw_SelectNode)(/*[in]*/ struct raw::InwOaNode* node, /*[in]*/ struct raw::InwOaPath* path, /*[in,out]*/ VARIANT_BOOL* Add, /*[in,out]*/ VARIANT_BOOL* finished)
+	{
+		return S_OK;
+	}
+
+	CSeeker()
+	{
+
+	}
+};
+
+void
+please::doit(IUnknown* iunk_state)
+{
+	raw::InwOpState10Ptr state(iunk_state);
+
+	raw::InwOpSelectionPtr selection = state->ObjectFactory(raw::eObjectType_nwOpSelection);
+
+	CComObject<CSeeker> *cseeker;
+
+	HRESULT HR = CComObject<CSeeker>::CreateInstance(&cseeker);
+	raw::InwSeekSelectionPtr seeker = cseeker->GetUnknown();//???
+	state->SeekSelection(selection, seeker);
+}
+
+//// by Xiaodong Liang March 10th
+//// get the primitives of the model
+
+// callback class
+class CallbackGeomClass :public ATL::CComObjectRoot, public IDispatchImpl<raw::InwSimplePrimitivesCB>
+{
+public:
+
+	float* matrix;
+
+	BEGIN_COM_MAP(CallbackGeomClass)
+		COM_INTERFACE_ENTRY(raw::InwSimplePrimitivesCB)
+	END_COM_MAP()
+
+	STDMETHOD(raw_Triangle)(/*[in]*/ struct raw::InwSimpleVertex* v1, /*[in]*/ struct raw::InwSimpleVertex* v2, /*[in]*/ struct raw::InwSimpleVertex* v3)
+	{
+		// do your work
+		VARIANT v1_coor;
+		VariantInit(&v1_coor);
+		HRESULT hr1 = v1->get_coord(&v1_coor);
+		if (SUCCEEDED(hr1)) {
+			//_generate_coordinate(v1_coor);
+			float* coor_1;
+			coor_1 = please::_get_coordinate(v1_coor.parray);
+			float* wsc_coor_1;
+			wsc_coor_1 = please::_convertLSCToWSC(matrix, coor_1);
+			dateClass::vertexFile->WriteLine(wsc_coor_1[0] + " " + wsc_coor_1[1] + " " + wsc_coor_1[2]);
+		}
+		//_generate_coordinate(v1_coor);
+
+		VARIANT v2_coor;
+		VariantInit(&v2_coor);
+		HRESULT hr2 = v2->get_coord(&v2_coor);
+		if (SUCCEEDED(hr2)) {
+			float* coor_2;
+			coor_2 = please::_get_coordinate(v2_coor.parray);
+			float* wsc_coor_2;
+			wsc_coor_2 = please::_convertLSCToWSC(matrix, coor_2);
+			dateClass::vertexFile->WriteLine(wsc_coor_2[0] + " " + wsc_coor_2[1] + " " + wsc_coor_2[2]);
+		}
+		//_generate_coordinate(v2_coor);
+
+		VARIANT v3_coor;
+		VariantInit(&v3_coor);
+		HRESULT hr3 = v3->get_coord(&v3_coor);
+		if (SUCCEEDED(hr3)) {
+			float* coor_3;
+			coor_3 = please::_get_coordinate(v3_coor.parray);
+			float* wsc_coor_3;
+			wsc_coor_3 = please::_convertLSCToWSC(matrix, coor_3);
+			dateClass::vertexFile->WriteLine(wsc_coor_3[0] + " " + wsc_coor_3[1] + " " + wsc_coor_3[2]);
+		}
+		//_generate_coordinate(v3_coor);
+
+		return S_OK;
+	}
+
+	STDMETHOD(raw_Line)(/*[in]*/ struct raw::InwSimpleVertex* v1,/*[in]*/ struct raw::InwSimpleVertex* v2)
+	{
+		return S_OK;
+	}
+
+	STDMETHOD(raw_Point)(/*[in]*/ struct raw::InwSimpleVertex* v1)
+	{
+		return S_OK;
+	}
+
+	STDMETHOD(raw_SnapPoint)(/*[in]*/ struct raw::InwSimpleVertex* v1)
+	{
+		return S_OK;
+	}
+
+	CallbackGeomClass()
+	{
+
+	}
+};
+
+// walk through the model and get the primitives
+void
+please::walkNode(IUnknown* iunk_node, bool bFoundFirst)
+{
+	raw::InwOaNodePtr node(iunk_node);
+	
+	// If this is a group node then recurse into the structure
+	if (node->IsGroup)
+	{
+		raw::InwOaGroupPtr group = (raw::InwOaGroupPtr)node;
+		long subNodesCount = group->Children()->GetCount();
+		for (long subNodeIndex = 1; subNodeIndex <= subNodesCount; subNodeIndex++)
+		{
+			if ((!bFoundFirst) && (subNodesCount > 1))
+			{
+				bFoundFirst = true;
+			}
+			raw::InwOaNodePtr newNode = group->Children()->GetItem(_variant_t(subNodeIndex));
+			walkNode(newNode, bFoundFirst);
+		}
+	}
+	else if (node->IsGeometry)
+	{
+		long fragsCount = node->Fragments()->Count;
+		please::_geonodecount += 1; // one more node
+		System::Diagnostics::Debug::WriteLine("frags count:" + fragsCount.ToString());
+		for (long fragindex = 1; fragindex <= fragsCount; fragindex++)
+		{
+			CComObject<CallbackGeomClass> *callbkListener;
+			HRESULT HR = CComObject<CallbackGeomClass>::CreateInstance(&callbkListener);
+
+			raw::InwOaFragment3Ptr frag = node->Fragments()->GetItem(_variant_t(fragindex));
+			VARIANT varGeometry;
+			VariantInit(&varGeometry);
+			HRESULT hr = frag->get_Geometry(&varGeometry);
+			if (FAILED(hr))
+			{
+				//Debug::WriteLine(L"get_Geometry failed with err: " + hr);
+			}
+
+			VARIANT varMatrix;
+			VariantInit(&varMatrix);
+			VARTYPE type_sa;
+			HRESULT hrvt = SafeArrayGetVartype(varMatrix.parray, &type_sa);
+
+			HRESULT hr_matrix = frag->GetLocalToWorldMatrix()->get_Matrix(&varMatrix);
+
+			float* matrix;
+			matrix = please::_get_matrix(varMatrix.parray);
+
+			if (FAILED(hr_matrix))
+			{
+				//Debug::WriteLine(L"get_Geometry failed with err: " + hr);
+			}
+			
+			callbkListener->matrix = matrix;
+			frag->GenerateSimplePrimitives(raw::nwEVertexProperty::eNORMAL, callbkListener);
+
+			please::_fragscount++;
+		}
+
+		System::DateTime nowTime = System::DateTime::Now;
+		System::TimeSpan span = nowTime.Subtract(dateClass::stTime);
+		//dateClass::span = dateClass::nowTime.Subtract()
+		System::Diagnostics::Debug::WriteLine(please::_geonodecount + "node done:" + span.TotalMilliseconds.ToString());
+	}
+}
+
+// do primitive
+void
+please::doit_primitive(IUnknown* iunk_state)
+{
+	please::_geonodecount = 0;
+	please::_fragscount = 0;
+
+	raw::InwOpState10Ptr state(iunk_state);
+	raw::InwOaPartitionPtr   oP = state->CurrentPartition;
+
+	dateClass::stTime = DateTime::Now;
+
+	dateClass::outfile = gcnew System::IO::StreamWriter("c:\\temp\\dump.rtf");
+	dateClass::vertexFile = gcnew System::IO::StreamWriter("D:\\vertex.txt");
+
+	walkNode(oP, false);
+
+	dateClass::outfile->Close();
+	dateClass::vertexFile->Close();
+
+	System::DateTime nowTime = System::DateTime::Now;
+	System::TimeSpan span = nowTime.Subtract(dateClass::stTime);
+	//dateClass::span = dateClass::nowTime.Subtract()
+	System::Diagnostics::Debug::WriteLine(span.TotalMilliseconds.ToString());
+	System::Windows::Forms::MessageBox::Show(span.TotalMilliseconds.ToString() + " ms, Geometry Node: " + please::_geonodecount + "Fragments: " + please::_fragscount);
+}
+
+float* 
+please::_get_matrix(SAFEARRAY* saValues) {
+
+	float* pVals;
+	float matrix[16];
+
+	HRESULT hrss = SafeArrayAccessData(saValues, (void**)&pVals); // direct access to SA memory
+	if (SUCCEEDED(hrss))
+	{
+		long lowerBound, upperBound;  // get array bounds
+		SafeArrayGetLBound(saValues, 1, &lowerBound);
+		SafeArrayGetUBound(saValues, 1, &upperBound);
+
+		long cnt_elements = upperBound - lowerBound + 1;
+		for (int i = 0; i < cnt_elements; ++i)  // iterate through returned values
+		{
+			matrix[i] = pVals[i];
+		}
+		SafeArrayUnaccessData(saValues);
+	}
+	SafeArrayDestroy(saValues);
+	return matrix;
+}
+
+float*
+please::_get_coordinate(SAFEARRAY* saValues) {
+	float* pVals;
+	float vertex3[3];
+	HRESULT hrss = SafeArrayAccessData(saValues, (void**)&pVals); // direct access to SA memory
+	if (SUCCEEDED(hrss)) 
+	{
+		long lowerBound, upperBound;  // get array bounds
+		SafeArrayGetLBound(saValues, 1, &lowerBound);
+		SafeArrayGetUBound(saValues, 1, &upperBound);
+
+		long cnt_elements = upperBound - lowerBound + 1;
+		for (int i = 0; i < cnt_elements; ++i)  // iterate through returned values
+		{
+			vertex3[i] = pVals[i];
+		}
+		SafeArrayUnaccessData(saValues);
+	}
+	SafeArrayDestroy(saValues);
+	return vertex3;
+}
+
+float*
+please::_convertLSCToWSC(float* matrix, float* vertex) {
+	float x = (matrix[0] * vertex[0] + matrix[4] * vertex[1]) + matrix[12];
+	float y = (matrix[1] * vertex[0] + matrix[5] * vertex[1]) + matrix[13];
+	float z = (matrix[10] * vertex[2]) + matrix[14];
+
+	float world_coord[3] = { x,y,z };
+	return world_coord;
+}
+
+void _generate_coordinate(VARIANT coordinate) {
+
+	SAFEARRAY* coord = coordinate.parray;
+
+	ULONG elements = coord->cbElements;
+	USHORT dims = coord->cDims;
+	ULONG lock = coord->cLocks;
+	USHORT feat = coord->fFeatures;
+	SAFEARRAYBOUND rgs = coord->rgsabound[1];
+	PVOID pVoid = coord->pvData;
+	
+	double* pVals;
+	double vertex3[3];
+
+	VARTYPE type_sa;
+	HRESULT hrvt = SafeArrayGetVartype(coord, &type_sa);
+	
+	HRESULT hrss = SafeArrayAccessData(coord, (void**)&pVals); // direct access to SA memory
+
+	if (SUCCEEDED(hrss))
+	{
+		long lowerBound, upperBound;  // get array bounds
+		SafeArrayGetLBound(coord, 1, &lowerBound);
+		SafeArrayGetUBound(coord, 1, &upperBound);
+
+		long cnt_elements = upperBound - lowerBound + 1;
+		for (int i = 0; i < cnt_elements; ++i)  // iterate through returned values
+		{
+			vertex3[i] = pVals[i];
+		}
+
+		//dateClass::vertexFile->WriteLine(vertex3[0] + " " + vertex3[1] + " " + vertex3[2]);
+		SafeArrayUnaccessData(coord);
+	}
+	SafeArrayDestroy(coord);
+};
+###########################################################################################################################
+#pragma once
+
+
+#include <Unknwn.h>
+
+class please
+{
+public:
+   static void doit(IUnknown* iunk_state);
+
+   //// by Xiaodong Liang March 10th
+   //// get the primitives of the model
+   static void doit_primitive(IUnknown* iunk_state);
+   static void walkNode(IUnknown* iunk_node, bool bFoundFirst = false);
+   static long _geonodecount; 
+   static long _fragscount;
+   static float* _get_matrix(SAFEARRAY* saValues);
+   static float* _get_coordinate(SAFEARRAY* saValues);
+   static float* _convertLSCToWSC(float* matrix, float* vertex);
+};
+
+void _generate_coordinate(VARIANT coordinate);
+
+
+###########################################################################################################################
+
+//------------------------------------------------------------------
+// NavisWorks Sample code
+//------------------------------------------------------------------
+
+// (C) Copyright 2018 by Autodesk Inc.
+
+// Permission to use, copy, modify, and distribute this software in
+// object code form for any purpose and without fee is hereby granted,
+// provided that the above copyright notice appears in all copies and
+// that both that copyright notice and the limited warranty and
+// restricted rights notice below appear in all supporting
+// documentation.
+
+// AUTODESK PROVIDES THIS PROGRAM "AS IS" AND WITH ALL FAULTS.
+// AUTODESK SPECIFICALLY DISCLAIMS ANY IMPLIED WARRANTY OF
+// MERCHANTABILITY OR FITNESS FOR A PARTICULAR USE.  AUTODESK
+// DOES NOT WARRANT THAT THE OPERATION OF THE PROGRAM WILL BE
+// UNINTERRUPTED OR ERROR FREE.
+//------------------------------------------------------------------
+
+#include "Raw.h"
+
+#include <atlbase.h>
+#include <atlcom.h>
+#import "C:\Program Files\Autodesk\Navisworks Simulate 2017\lcodieD.dll"  rename_namespace("raw")
+#include<vector>
+
+using namespace System;
+
+CComModule _Module;
+long please::_geonodecount;
+long please::_fragscount;
+
+ref class dateClass {
+public:
+	static System::DateTime stTime;
+	static System::IO::StreamWriter^ outfile;
+};
+
+class CSeeker : public ATL::CComObjectRoot, public IDispatchImpl<raw::InwSeekSelection>
+{
+public:
+	BEGIN_COM_MAP(CSeeker)
+		COM_INTERFACE_ENTRY(raw::InwSeekSelection)
+	END_COM_MAP()
+
+	STDMETHOD(raw_SelectNode)(/*[in]*/ struct raw::InwOaNode* node, /*[in]*/ struct raw::InwOaPath* path, /*[in,out]*/ VARIANT_BOOL* Add, /*[in,out]*/ VARIANT_BOOL* finished)
+	{
+		return S_OK;
+	}
+
+	CSeeker()
+	{
+
+	}
+};
+
+void
+please::doit(IUnknown* iunk_state)
+{
+	raw::InwOpState10Ptr state(iunk_state);
+
+	raw::InwOpSelectionPtr selection = state->ObjectFactory(raw::eObjectType_nwOpSelection);
+
+	CComObject<CSeeker> *cseeker;
+
+	HRESULT HR = CComObject<CSeeker>::CreateInstance(&cseeker);
+	raw::InwSeekSelectionPtr seeker = cseeker->GetUnknown();//???
+	state->SeekSelection(selection, seeker);
+}
+
+//// by Xiaodong Liang March 10th
+//// get the primitives of the model
+
+// callback class
+class CallbackGeomClass :public ATL::CComObjectRoot, public IDispatchImpl<raw::InwSimplePrimitivesCB>
+{
+public:
+	vector<double> matrix;
+
+	BEGIN_COM_MAP(CallbackGeomClass)
+		COM_INTERFACE_ENTRY(raw::InwSimplePrimitivesCB)
+	END_COM_MAP()
+
+	STDMETHOD(raw_Triangle)(/*[in]*/ struct raw::InwSimpleVertex* v1, /*[in]*/ struct raw::InwSimpleVertex* v2, /*[in]*/ struct raw::InwSimpleVertex* v3)
+	{
+		VARIANT varCoord1;
+		varCoord1.vt = VT_EMPTY;
+		HRESULT hrvc1 = v1->get_coord(&varCoord1);
+		if (SUCCEEDED(hrvc1)) 
+		{
+			vector<float> lsc_coord1;
+			lsc_coord1 = please::_get_Coordinate(varCoord1);
+			//for (int i = 0; i < 3; i++)
+			//{
+				//dateClass::outfile->WriteLine(lsc_coord1[i]);
+			//}
+			//dateClass::outfile->WriteLine(lsc_coord1[0] + " " + lsc_coord1[1] + " " + lsc_coord1[2]);
+			//dateClass::outfile->WriteLine(*(lsc_coord1 + 0) + " " + *(lsc_coord1 + 1) + " " + *(lsc_coord1 + 2));
+			//dateClass::outfile->WriteLine(matrix[0] + " " + matrix[1] + " " + matrix[2] + " " + matrix[3] + " " + matrix[4] + " " + matrix[5] + " " + matrix[6] + " " + matrix[7] + " " + matrix[8] + " " + matrix[9] + " " + matrix[10] + " " + matrix[11] + " " + matrix[12] + " " + matrix[14] + " " + matrix[15]);
+			vector<double> wsc_coord1 = please::_lsc_to_wsc(matrix, lsc_coord1);
+			dateClass::outfile->WriteLine("v " + wsc_coord1[0] + " " + wsc_coord1[1] + " " + wsc_coord1[2]);
+		}
+
+		VARIANT varCoord2;
+		varCoord1.vt = VT_EMPTY;
+		HRESULT hrvc2 = v1->get_coord(&varCoord2);
+		if (SUCCEEDED(hrvc2))
+		{
+			vector<float> lsc_coord2;
+			lsc_coord2 = please::_get_Coordinate(varCoord2);
+			//dateClass::outfile->WriteLine(lsc_coord2[0] + " " + lsc_coord2[1] + " " + lsc_coord2[2]);
+			//dateClass::outfile->WriteLine(matrix[0] + " " + matrix[1] + " " + matrix[2] + " " + matrix[3] + " " + matrix[4] + " " + matrix[5] + " " + matrix[6] + " " + matrix[7] + " " + matrix[8] + " " + matrix[9] + " " + matrix[10] + " " + matrix[11] + " " + matrix[12] + " " + matrix[14] + " " + matrix[15]);
+			vector<double> wsc_coord2 = please::_lsc_to_wsc(matrix, lsc_coord2);
+			dateClass::outfile->WriteLine("v " + wsc_coord2[0] + " " + wsc_coord2[1] + " " + wsc_coord2[2]);
+		}
+
+		VARIANT varCoord3;
+		varCoord3.vt = VT_EMPTY;
+		HRESULT hrvc3 = v1->get_coord(&varCoord3);
+		if (SUCCEEDED(hrvc3))
+		{
+			vector<float> lsc_coord3;
+			lsc_coord3 = please::_get_Coordinate(varCoord3);
+			//dateClass::outfile->WriteLine(lsc_coord3[0] + " " + lsc_coord3[1] + " " + lsc_coord3[2]);
+			//dateClass::outfile->WriteLine(matrix[0] + " " + matrix[1] + " " + matrix[2] + " " + matrix[3] + " " + matrix[4] + " " + matrix[5] + " " + matrix[6] + " " + matrix[7] + " " + matrix[8] + " " + matrix[9] + " " + matrix[10] + " " + matrix[11] + " " + matrix[12] + " " + matrix[14] + " " + matrix[15]);
+			vector<double> wsc_coord3 = please::_lsc_to_wsc(matrix, lsc_coord3);
+			dateClass::outfile->WriteLine("v " + wsc_coord3[0] + " " + wsc_coord3[1] + " " + wsc_coord3[2]);
+		}
+
+
+		return S_OK;
+	}
+
+	STDMETHOD(raw_Line)(/*[in]*/ struct raw::InwSimpleVertex* v1,/*[in]*/ struct raw::InwSimpleVertex* v2)
+	{
+		return S_OK;
+	}
+
+	STDMETHOD(raw_Point)(/*[in]*/ struct raw::InwSimpleVertex* v1)
+	{
+		return S_OK;
+	}
+
+	STDMETHOD(raw_SnapPoint)(/*[in]*/ struct raw::InwSimpleVertex* v1)
+	{
+		return S_OK;
+	}
+
+	CallbackGeomClass()
+	{
+
+	}
+};
+
+// walk through the model and get the primitives
+void
+please::walkNode(IUnknown* iunk_node, bool bFoundFirst)
+{
+	raw::InwOaNodePtr node(iunk_node);
+	
+	// If this is a group node then recurse into the structure
+	if (node->IsGroup)
+	{
+		raw::InwOaGroupPtr group = (raw::InwOaGroupPtr)node;
+		long subNodesCount = group->Children()->GetCount();
+		for (long subNodeIndex = 1; subNodeIndex <= subNodesCount; subNodeIndex++)
+		{
+			if ((!bFoundFirst) && (subNodesCount > 1))
+			{
+				bFoundFirst = true;
+			}
+			raw::InwOaNodePtr newNode = group->Children()->GetItem(_variant_t(subNodeIndex));
+			walkNode(newNode, bFoundFirst);
+		}
+	}
+	else if (node->IsGeometry)
+	{
+		long fragsCount = node->Fragments()->Count;
+		please::_geonodecount += 1; // one more node
+		System::Diagnostics::Debug::WriteLine("frags count:" + fragsCount.ToString());
+		for (long fragindex = 1; fragindex <= fragsCount; fragindex++)
+		{
+			CComObject<CallbackGeomClass> *callbkListener;
+			HRESULT HR = CComObject<CallbackGeomClass>::CreateInstance(&callbkListener);
+
+			raw::InwOaFragment3Ptr frag = node->Fragments()->GetItem(_variant_t(fragindex));
+			VARIANT varGeometry;
+			VariantInit(&varGeometry);
+			HRESULT hr = frag->get_Geometry(&varGeometry);
+			if (FAILED(hr))
+			{
+				//Debug::WriteLine(L"get_Geometry failed with err: " + hr);
+			}
+
+			VARIANT varMatrix;
+			varMatrix.vt = VT_EMPTY;
+			HRESULT hrmatrix = frag->GetLocalToWorldMatrix()->get_Matrix(&varMatrix);
+			if (SUCCEEDED(hrmatrix)) {
+				//Array + Double value 8917
+				//VARTYPE varType = varMatrix.vt;
+				callbkListener->matrix = please::_get_Matrix(varMatrix);
+			}
+			frag->GenerateSimplePrimitives(raw::nwEVertexProperty::eNORMAL, callbkListener);
+
+			please::_fragscount++;
+		}
+
+		System::DateTime nowTime = System::DateTime::Now;
+		System::TimeSpan span = nowTime.Subtract(dateClass::stTime);
+		//dateClass::span = dateClass::nowTime.Subtract()
+		System::Diagnostics::Debug::WriteLine(please::_geonodecount + "node done:" + span.TotalMilliseconds.ToString());
+	}
+}
+
+// do primitive
+void
+please::doit_primitive(IUnknown* iunk_state)
+{
+	please::_geonodecount = 0;
+	please::_fragscount = 0;
+
+	raw::InwOpState10Ptr state(iunk_state);
+	raw::InwOaPartitionPtr   oP = state->CurrentPartition;
+
+	dateClass::stTime = DateTime::Now;
+
+	dateClass::outfile = gcnew System::IO::StreamWriter("D:\\vertex_test.obj");
+	dateClass::outfile->WriteLine("# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware");
+	dateClass::outfile->WriteLine("o Model_float");
+
+	walkNode(oP, false);
+
+	dateClass::outfile->Close();
+
+	System::DateTime nowTime = System::DateTime::Now;
+	System::TimeSpan span = nowTime.Subtract(dateClass::stTime);
+	//dateClass::span = dateClass::nowTime.Subtract()
+	System::Diagnostics::Debug::WriteLine(span.TotalMilliseconds.ToString());
+	System::Windows::Forms::MessageBox::Show(span.TotalMilliseconds.ToString() + " ms, Geometry Node: " + please::_geonodecount + "Fragments: " + please::_fragscount);
+}
+
+// Vertex
+vector<float>
+please::_get_Coordinate(VARIANT varVertex) {
+	//Array + Single value 8916
+	//VARTYPE varType = varCoord1.vt;
+	SAFEARRAY* coorArr = varVertex.parray;
+
+	float* pVals;
+	vector<float> loc_vertex(3);
+
+	HRESULT hrss = SafeArrayAccessData(coorArr, (void**)&pVals); // direct access to SA memory
+
+	if (SUCCEEDED(hrss))
+	{
+		long lowerBound, upperBound;  // get array bounds
+		SafeArrayGetLBound(coorArr, 1, &lowerBound);
+		SafeArrayGetUBound(coorArr, 1, &upperBound);
+
+		long cnt_elements = upperBound - lowerBound + 1;
+		for (int i = 0; i < cnt_elements; ++i)  // iterate through returned values
+		{
+			loc_vertex[i] = pVals[i];
+			//dateClass::outfile->WriteLine(loc_vertex[i] + " " + pVals[i]);
+		}
+
+		//dateClass::vertexFile->WriteLine(vertex3[0] + " " + vertex3[1] + " " + vertex3[2]);
+		SafeArrayUnaccessData(coorArr);
+	}
+	SafeArrayDestroy(coorArr);
+
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	dateClass::outfile->WriteLine(loc_vertex[i]);
+	//}
+	return loc_vertex;
+}
+
+// Matrix
+vector<double>
+please::_get_Matrix(VARIANT varMatrix) {
+	SAFEARRAY* matrixArr = varMatrix.parray;
+
+	double* pVals;
+	vector<double> matrix(16);
+
+	HRESULT hr = SafeArrayAccessData(matrixArr, (void**)&pVals); // direct access to SA memory
+
+	if (SUCCEEDED(hr))
+	{
+		long lowerBound, upperBound;  // get array bounds
+		SafeArrayGetLBound(matrixArr, 1, &lowerBound);
+		SafeArrayGetUBound(matrixArr, 1, &upperBound);
+
+		long cnt_elements = upperBound - lowerBound + 1;
+		for (int i = 0; i < cnt_elements; ++i)  // iterate through returned values
+		{
+			matrix[i] = pVals[i];
+		}
+
+		//dateClass::vertexFile->WriteLine(vertex3[0] + " " + vertex3[1] + " " + vertex3[2]);
+		SafeArrayUnaccessData(matrixArr);
+	}
+	SafeArrayDestroy(matrixArr);
+
+	return matrix;
+}
+
+// Convert LSC to WSC
+vector<double>
+please::_lsc_to_wsc(vector<double> matrix, vector<float> vertex) {
+	vector<double> world_coord(3);
+	world_coord[0] = (matrix[0] * (double)vertex[0] + matrix[4] * (double)vertex[1]) + matrix[12];
+	world_coord[1] = (matrix[1] * (double)vertex[0] + matrix[5] * (double)vertex[1]) + matrix[13];
+	world_coord[2] = (matrix[10] * (double)vertex[2]) + matrix[14];
+	return world_coord;
+}
+###########################################################################################################################
+#pragma once
+
+#include <Unknwn.h>
+#include<vector>
+
+using namespace std;
+class please
+{
+public:
+   static void doit(IUnknown* iunk_state);
+
+   //// by Xiaodong Liang March 10th
+   //// get the primitives of the model
+   static void doit_primitive(IUnknown* iunk_state);
+   static void walkNode(IUnknown* iunk_node, bool bFoundFirst = false);
+   static long _geonodecount; 
+   static long _fragscount;
+
+   // 
+   static vector<float> _get_Coordinate(VARIANT vertex);
+   static vector<double> _get_Matrix(VARIANT matrix);
+   static vector<double> _lsc_to_wsc(vector<double> matrix, vector<float> vertex);
+};
+
+
+
+###########################################################################################################################
+
+//------------------------------------------------------------------
+// NavisWorks Sample code
+//------------------------------------------------------------------
+
+// (C) Copyright 2018 by Autodesk Inc.
+
+// Permission to use, copy, modify, and distribute this software in
+// object code form for any purpose and without fee is hereby granted,
+// provided that the above copyright notice appears in all copies and
+// that both that copyright notice and the limited warranty and
+// restricted rights notice below appear in all supporting
+// documentation.
+
+// AUTODESK PROVIDES THIS PROGRAM "AS IS" AND WITH ALL FAULTS.
+// AUTODESK SPECIFICALLY DISCLAIMS ANY IMPLIED WARRANTY OF
+// MERCHANTABILITY OR FITNESS FOR A PARTICULAR USE.  AUTODESK
+// DOES NOT WARRANT THAT THE OPERATION OF THE PROGRAM WILL BE
+// UNINTERRUPTED OR ERROR FREE.
+//------------------------------------------------------------------
+
+#include "Raw.h"
+
+#include <atlbase.h>
+#include <atlcom.h>
+#import "C:\Program Files\Autodesk\Navisworks Simulate 2017\lcodieD.dll"  rename_namespace("raw")
+#include<vector>
+
+using namespace System;
+
+CComModule _Module;
+long please::_geonodecount;
+long please::_fragscount;
+
+ref class dateClass {
+public:
+	static System::DateTime stTime;
+	static System::IO::StreamWriter^ outfile;
+};
+
+class CSeeker : public ATL::CComObjectRoot, public IDispatchImpl<raw::InwSeekSelection>
+{
+public:
+	BEGIN_COM_MAP(CSeeker)
+		COM_INTERFACE_ENTRY(raw::InwSeekSelection)
+	END_COM_MAP()
+
+	STDMETHOD(raw_SelectNode)(/*[in]*/ struct raw::InwOaNode* node, /*[in]*/ struct raw::InwOaPath* path, /*[in,out]*/ VARIANT_BOOL* Add, /*[in,out]*/ VARIANT_BOOL* finished)
+	{
+		return S_OK;
+	}
+
+	CSeeker()
+	{
+
+	}
+};
+
+void
+please::doit(IUnknown* iunk_state)
+{
+	raw::InwOpState10Ptr state(iunk_state);
+
+	raw::InwOpSelectionPtr selection = state->ObjectFactory(raw::eObjectType_nwOpSelection);
+
+	CComObject<CSeeker> *cseeker;
+
+	HRESULT HR = CComObject<CSeeker>::CreateInstance(&cseeker);
+	raw::InwSeekSelectionPtr seeker = cseeker->GetUnknown();//???
+	state->SeekSelection(selection, seeker);
+}
+
+//// by Xiaodong Liang March 10th
+//// get the primitives of the model
+
+// callback class
+class CallbackGeomClass :public ATL::CComObjectRoot, public IDispatchImpl<raw::InwSimplePrimitivesCB>
+{
+public:
+	vector<double> heep;
+	double* matrix;
+
+	BEGIN_COM_MAP(CallbackGeomClass)
+		COM_INTERFACE_ENTRY(raw::InwSimplePrimitivesCB)
+	END_COM_MAP()
+
+	STDMETHOD(raw_Triangle)(/*[in]*/ struct raw::InwSimpleVertex* v1, /*[in]*/ struct raw::InwSimpleVertex* v2, /*[in]*/ struct raw::InwSimpleVertex* v3)
+	{
+		VARIANT varCoord1;
+		varCoord1.vt = VT_EMPTY;
+		HRESULT hrvc1 = v1->get_coord(&varCoord1);
+		if (SUCCEEDED(hrvc1)) 
+		{
+			float lsc_coord1[3];
+			vertex::_vertex(varCoord1, lsc_coord1);
+			double wsc_coord1[3];
+			vertex::_lsc_wsc(matrix, lsc_coord1, wsc_coord1);
+			dateClass::outfile->WriteLine("v " + wsc_coord1[0] + " " + wsc_coord1[1] + " " + wsc_coord1[2]);
+		}
+
+		VARIANT varCoord2;
+		varCoord1.vt = VT_EMPTY;
+		HRESULT hrvc2 = v1->get_coord(&varCoord2);
+		if (SUCCEEDED(hrvc2))
+		{
+			float lsc_coord2[3];
+			vertex::_vertex(varCoord1, lsc_coord2);
+			double wsc_coord2[3];
+			vertex::_lsc_wsc(matrix, lsc_coord2, wsc_coord2);
+			dateClass::outfile->WriteLine("v " + wsc_coord2[0] + " " + wsc_coord2[1] + " " + wsc_coord2[2]);
+		}
+
+		VARIANT varCoord3;
+		varCoord3.vt = VT_EMPTY;
+		HRESULT hrvc3 = v1->get_coord(&varCoord3);
+		if (SUCCEEDED(hrvc3))
+		{
+			float lsc_coord3[3];
+			vertex::_vertex(varCoord3, lsc_coord3);
+			double wsc_coord3[3];
+			vertex::_lsc_wsc(matrix, lsc_coord3, wsc_coord3);
+			
+			dateClass::outfile->WriteLine("v " + wsc_coord3[0] + " " + wsc_coord3[1] + " " + wsc_coord3[2]);
+		}
+
+
+		return S_OK;
+	}
+
+	STDMETHOD(raw_Line)(/*[in]*/ struct raw::InwSimpleVertex* v1,/*[in]*/ struct raw::InwSimpleVertex* v2)
+	{
+		return S_OK;
+	}
+
+	STDMETHOD(raw_Point)(/*[in]*/ struct raw::InwSimpleVertex* v1)
+	{
+		return S_OK;
+	}
+
+	STDMETHOD(raw_SnapPoint)(/*[in]*/ struct raw::InwSimpleVertex* v1)
+	{
+		return S_OK;
+	}
+
+	CallbackGeomClass()
+	{
+
+	}
+};
+
+// walk through the model and get the primitives
+void
+please::walkNode(IUnknown* iunk_node, bool bFoundFirst)
+{
+	raw::InwOaNodePtr node(iunk_node);
+	
+	// If this is a group node then recurse into the structure
+	if (node->IsGroup)
+	{
+		raw::InwOaGroupPtr group = (raw::InwOaGroupPtr)node;
+		long subNodesCount = group->Children()->GetCount();
+		for (long subNodeIndex = 1; subNodeIndex <= subNodesCount; subNodeIndex++)
+		{
+			if ((!bFoundFirst) && (subNodesCount > 1))
+			{
+				bFoundFirst = true;
+			}
+			raw::InwOaNodePtr newNode = group->Children()->GetItem(_variant_t(subNodeIndex));
+			walkNode(newNode, bFoundFirst);
+		}
+	}
+	else if (node->IsGeometry)
+	{
+		long fragsCount = node->Fragments()->Count;
+		please::_geonodecount += 1; // one more node
+		System::Diagnostics::Debug::WriteLine("frags count:" + fragsCount.ToString());
+		double arrMatrix[16];
+		for (long fragindex = 1; fragindex <= fragsCount; fragindex++)
+		{
+			CComObject<CallbackGeomClass> *callbkListener;
+			HRESULT HR = CComObject<CallbackGeomClass>::CreateInstance(&callbkListener);
+			raw::InwOaFragment3Ptr frag = node->Fragments()->GetItem(_variant_t(fragindex));
+			VARIANT varGeometry;
+			VariantInit(&varGeometry);
+			HRESULT hr = frag->get_Geometry(&varGeometry);
+			if (FAILED(hr))
+			{
+				//Debug::WriteLine(L"get_Geometry failed with err: " + hr);
+			}
+
+			VARIANT varMatrix;
+			varMatrix.vt = VT_EMPTY;
+			HRESULT hrmatrix = frag->GetLocalToWorldMatrix()->get_Matrix(&varMatrix);
+			if (SUCCEEDED(hrmatrix)) {
+				//Array + Double value 8917
+				//VARTYPE varType = varMatrix.vt;
+				
+				vertex::_matrix(varMatrix, arrMatrix);
+				callbkListener->matrix = arrMatrix;
+			}
+			frag->GenerateSimplePrimitives(raw::nwEVertexProperty::eNORMAL, callbkListener);
+			//delete[] arrMatrix;
+			please::_fragscount++;
+		}
+
+		System::DateTime nowTime = System::DateTime::Now;
+		System::TimeSpan span = nowTime.Subtract(dateClass::stTime);
+		//dateClass::span = dateClass::nowTime.Subtract()
+		System::Diagnostics::Debug::WriteLine(please::_geonodecount + "node done:" + span.TotalMilliseconds.ToString());
+	}
+}
+
+// do primitive
+void
+please::doit_primitive(IUnknown* iunk_state)
+{
+	please::_geonodecount = 0;
+	please::_fragscount = 0;
+
+	raw::InwOpState10Ptr state(iunk_state);
+	raw::InwOaPartitionPtr   oP = state->CurrentPartition;
+
+	dateClass::stTime = DateTime::Now;
+
+	dateClass::outfile = gcnew System::IO::StreamWriter("D:\\vertex_test.obj");
+	dateClass::outfile->WriteLine("# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware");
+	dateClass::outfile->WriteLine("o Model_float");
+
+	walkNode(oP, false);
+
+	dateClass::outfile->Close();
+
+	System::DateTime nowTime = System::DateTime::Now;
+	System::TimeSpan span = nowTime.Subtract(dateClass::stTime);
+	//dateClass::span = dateClass::nowTime.Subtract()
+	System::Diagnostics::Debug::WriteLine(span.TotalMilliseconds.ToString());
+	System::Windows::Forms::MessageBox::Show(span.TotalMilliseconds.ToString() + " ms, Geometry Node: " + please::_geonodecount + "Fragments: " + please::_fragscount);
+}
+
+// Vertex
+void
+vertex::_vertex(VARIANT varVert, float* arrVert) {
+
+	SAFEARRAY* coorArr = varVert.parray;
+	float* pVals;
+	HRESULT hrss = SafeArrayAccessData(coorArr, (void**)&pVals); 
+	if (SUCCEEDED(hrss))
+	{
+		long lowerBound, upperBound;  
+		SafeArrayGetLBound(coorArr, 1, &lowerBound);
+		SafeArrayGetUBound(coorArr, 1, &upperBound);
+
+		long cnt_elements = upperBound - lowerBound + 1;
+		for (int i = 0; i < cnt_elements; ++i)  
+		{
+			arrVert[i] = pVals[i];
+		}
+
+		SafeArrayUnaccessData(coorArr);
+	}
+	SafeArrayDestroy(coorArr);
+}
+
+// Matrix
+void
+vertex::_matrix(VARIANT varMatrix, double* arrMatrix) {
+	SAFEARRAY* matrixArr = varMatrix.parray;
+	double* pVals;
+	HRESULT hr = SafeArrayAccessData(matrixArr, (void**)&pVals); 
+	if (SUCCEEDED(hr))
+	{
+		long lowerBound, upperBound;  
+		SafeArrayGetLBound(matrixArr, 1, &lowerBound);
+		SafeArrayGetUBound(matrixArr, 1, &upperBound);
+
+		long cnt_elements = upperBound - lowerBound + 1;
+		for (int i = 0; i < cnt_elements; ++i) 
+		{
+			arrMatrix[i] = pVals[i];
+		}
+		SafeArrayUnaccessData(matrixArr);
+	}
+	SafeArrayDestroy(matrixArr);
+}
+
+// Convert LSC to WSC
+void
+vertex::_lsc_wsc(double* arrMatrix, float* arrVert, double* arrWVertex) {
+	arrWVertex[0] = (arrMatrix[0] * arrVert[0] + arrMatrix[4] * arrVert[1]) + arrMatrix[12];
+	arrWVertex[1] = (arrMatrix[1] * arrVert[0] + arrMatrix[5] * arrVert[1]) + arrMatrix[13];
+	arrWVertex[2] = (arrMatrix[10] * arrVert[2]) + arrMatrix[14];
+}
+###########################################################################################################################
+#pragma once
+
+#include <Unknwn.h>
+#include<vector>
+using namespace std;
+
+class please
+{
+public:
+   static void doit(IUnknown* iunk_state);
+
+   //// by Xiaodong Liang March 10th
+   //// get the primitives of the model
+   static void doit_primitive(IUnknown* iunk_state);
+   static void walkNode(IUnknown* iunk_node, bool bFoundFirst = false);
+   static long _geonodecount; 
+   static long _fragscount;
+};
+
+class vertex
+{
+public:
+	static void _vertex(VARIANT varVert, float* arrVert);
+	static void _matrix(VARIANT varMatrix, double* arrMatrix);
+	static void _lsc_wsc(double* arrMatrix, float* arrVert, double* arrWVertex);
+};
+
+###########################################################################################################################
+	raw::InwOpState10Ptr state(iunk_state);
+	raw::InwOpSelection2Ptr pSelect = state->CurrentSelection;
+
+	raw::InwOpSelectionSet2Ptr oNewSelSet = state->ObjectFactory(raw::eObjectType_nwOpSelectionSet);
+	oNewSelSet->name = SysAllocString(L"ByCategorySelection");
+
+	raw::InwOpFindSpecPtr nwFindSpec = state->ObjectFactory(raw::eObjectType_nwOpFindSpec);
+	raw::InwOpFindConditionPtr nwFindCondition = state->ObjectFactory(raw::eObjectType_nwOpFindCondition);
+
+	BSTR internal_name = SysAllocString(L"LcOpGeometryProperty");
+	
+	nwFindCondition->SetAttributeNames(internal_name, _variant_t("Геометрия"));
+	nwFindCondition->Condition = raw::eFind_HAS_ATTRIB;
+	
+	nwFindSpec->selection = pSelect;
+	nwFindSpec->SearchMode = raw::eSearchMode_BELOW_SELECTED_PATHS;
+	nwFindSpec->Conditions()->Add(nwFindCondition);
+
+	oNewSelSet->ImplicitFindSpec = nwFindSpec;
+
+	raw::InwSelectionPathsCollPtr pPathsColl = oNewSelSet->selection->Paths();
+
+	long count_path = pPathsColl->Count;
+
+	for (long index_path = 1; index_path <= count_path; index_path++)
+	{
+		raw::InwOaPathPtr path = pPathsColl->GetItem(_variant_t(index_path));
+		long count_frag = path->Fragments()->Count;
+
+		for (long index_frag = 1; index_frag <= count_frag; index_frag++)
+		{
+			CComObject<CallbackGeomClass> *callbkListener;
+			HRESULT HR = CComObject<CallbackGeomClass>::CreateInstance(&callbkListener);
+
+			if (SUCCEEDED(HR)) {
+				raw::InwOaFragment3Ptr pFrag = path->Fragments()->GetItem(_variant_t(index_frag));
+				pFrag->GenerateSimplePrimitives(raw::nwEVertexProperty::eNORMAL, callbkListener);
+			}
+		}
+	}
+###########################################################################################################################
+
+//------------------------------------------------------------------
+// NavisWorks Sample code
+//------------------------------------------------------------------
+
+// (C) Copyright 2018 by Autodesk Inc.
+
+// Permission to use, copy, modify, and distribute this software in
+// object code form for any purpose and without fee is hereby granted,
+// provided that the above copyright notice appears in all copies and
+// that both that copyright notice and the limited warranty and
+// restricted rights notice below appear in all supporting
+// documentation.
+
+// AUTODESK PROVIDES THIS PROGRAM "AS IS" AND WITH ALL FAULTS.
+// AUTODESK SPECIFICALLY DISCLAIMS ANY IMPLIED WARRANTY OF
+// MERCHANTABILITY OR FITNESS FOR A PARTICULAR USE.  AUTODESK
+// DOES NOT WARRANT THAT THE OPERATION OF THE PROGRAM WILL BE
+// UNINTERRUPTED OR ERROR FREE.
+//------------------------------------------------------------------
+
+#include "Raw.h"
+
+#include <atlbase.h>
+#include <atlcom.h>
+#import "C:\Program Files\Autodesk\Navisworks Simulate 2017\lcodieD.dll"  rename_namespace("raw")
+#include<vector>
+namespace AdNavis = Autodesk::Navisworks::Api;
+namespace ComApiAccess = Autodesk::Navisworks::Api::ComApi;
+namespace InteropComApi = Autodesk::Navisworks::Api::Interop::ComApi;
+
+using namespace System;
+using namespace System::Runtime::InteropServices;
+
+CComModule _Module;
+ref class dateClass {
+public:
+	static System::DateTime stTime;
+	static System::IO::StreamWriter^ outfile;
+};
+
+// callback class
+class CallbackGeomClass :public ATL::CComObjectRoot, public IDispatchImpl<raw::InwSimplePrimitivesCB>
+{
+public:
+
+	double *matrix;
+
+	BEGIN_COM_MAP(CallbackGeomClass)
+		COM_INTERFACE_ENTRY(raw::InwSimplePrimitivesCB)
+	END_COM_MAP()
+
+	STDMETHOD(raw_Triangle)(/*[in]*/ struct raw::InwSimpleVertex* v1, /*[in]*/ struct raw::InwSimpleVertex* v2, /*[in]*/ struct raw::InwSimpleVertex* v3)
+	{
+		_variant_t varV1 = v1->coord;
+		double vertex1[3];
+		please::_get_coordinate(varV1, vertex1);
+		double wsc_vertex1[3];
+		please::_lsc_to_wsc(matrix, vertex1, wsc_vertex1);
+		dateClass::outfile->WriteLine("v " + wsc_vertex1[0] + " " + wsc_vertex1[1] + " " + wsc_vertex1[2]);
+
+		_variant_t varV2 = v2->coord;
+		double vertex2[3];
+		please::_get_coordinate(varV2, vertex2);
+		double wsc_vertex2[3];
+		please::_lsc_to_wsc(matrix, vertex2, wsc_vertex2);
+		dateClass::outfile->WriteLine("v " + wsc_vertex2[0] + " " + wsc_vertex2[1] + " " + wsc_vertex2[2]);
+
+		_variant_t varV3 = v3->coord;
+		double vertex3[3];
+		please::_get_coordinate(varV3, vertex3);
+		double wsc_vertex3[3];
+		please::_lsc_to_wsc(matrix, vertex3, wsc_vertex3);
+		dateClass::outfile->WriteLine("v " + wsc_vertex3[0] + " " + wsc_vertex3[1] + " " + wsc_vertex3[2]);
+
+		return S_OK;
+	}
+
+	STDMETHOD(raw_Line)(/*[in]*/ struct raw::InwSimpleVertex* v1,/*[in]*/ struct raw::InwSimpleVertex* v2)
+	{
+		return S_OK;
+	}
+
+	STDMETHOD(raw_Point)(/*[in]*/ struct raw::InwSimpleVertex* v1)
+	{
+		return S_OK;
+	}
+
+	STDMETHOD(raw_SnapPoint)(/*[in]*/ struct raw::InwSimpleVertex* v1)
+	{
+		return S_OK;
+	}
+
+	CallbackGeomClass()
+	{
+
+	}
+};
+
+void
+please::doit_primitive(IUnknown* iunk_state)
+{
+	raw::InwOpState10Ptr state(iunk_state);
+	raw::InwOpSelection2Ptr pSelect = state->CurrentSelection;
+
+	raw::InwOpSelectionSet2Ptr oNewSelSet = state->ObjectFactory(raw::eObjectType_nwOpSelectionSet);
+	oNewSelSet->name = SysAllocString(L"ByCategorySelection");
+
+	raw::InwOpFindSpecPtr nwFindSpec = state->ObjectFactory(raw::eObjectType_nwOpFindSpec);
+	raw::InwOpFindConditionPtr nwFindCondition = state->ObjectFactory(raw::eObjectType_nwOpFindCondition);
+
+	BSTR internal_name = SysAllocString(L"LcOpGeometryProperty");
+	
+	nwFindCondition->SetAttributeNames(internal_name, _variant_t("Геометрия"));
+	nwFindCondition->Condition = raw::eFind_HAS_ATTRIB;
+	
+	nwFindSpec->selection = pSelect;
+	nwFindSpec->SearchMode = raw::eSearchMode_BELOW_SELECTED_PATHS;
+	nwFindSpec->Conditions()->Add(nwFindCondition);
+
+	oNewSelSet->ImplicitFindSpec = nwFindSpec;
+
+	dateClass::outfile = gcnew System::IO::StreamWriter("D:\\vertex_test.obj");
+	dateClass::outfile->WriteLine("# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware");
+	dateClass::outfile->WriteLine("o Model_float");
+
+	please::work_it(oNewSelSet);
+
+	dateClass::outfile->Close();
+}
+
+void
+please::work_it(IUnknown* iunk_state) 
+{
+	raw::InwOpSelectionSet2Ptr oNewSelSet(iunk_state);
+	raw::InwSelectionPathsCollPtr pPathsColl = oNewSelSet->selection->Paths();
+
+	long count_path = pPathsColl->Count;
+	for (long index_path = 1; index_path <= count_path; index_path++)
+	{
+		raw::InwOaPathPtr path = pPathsColl->GetItem(_variant_t(index_path));
+		long count_frag = path->Fragments()->Count;
+
+		for (long index_frag = 1; index_frag <= count_frag; index_frag++)
+		{
+			CComObject<CallbackGeomClass> *callbkListener;
+			HRESULT HR = CComObject<CallbackGeomClass>::CreateInstance(&callbkListener);
+			raw::InwOaFragment3Ptr pFrag = path->Fragments()->GetItem(_variant_t(index_frag));
+			
+			if (SUCCEEDED(HR))
+			{
+				VARIANT varMatrix;
+				HRESULT hrmatrix = pFrag->GetLocalToWorldMatrix()->get_Matrix(&varMatrix);
+				if (SUCCEEDED(hrmatrix)) {
+					double arrMatrix[16];
+					please::_get_matrix(varMatrix, arrMatrix);
+					callbkListener->matrix = arrMatrix;
+					pFrag->GenerateSimplePrimitives(raw::nwEVertexProperty::eNORMAL, callbkListener);
+				}
+				
+			}
+		}
+	}
+}
+
+// Coordinate
+void
+please::_get_coordinate(VARIANT varValue, double *arrValue) 
+{
+	SAFEARRAY *pArrV1 = varValue.parray;
+	float *pVals;
+	//double arrValue[3];
+	HRESULT hr = SafeArrayAccessData(pArrV1, (void**)&pVals);
+	if (SUCCEEDED(hr))
+	{
+		long lowerBound, upperBound;
+		SafeArrayGetLBound(pArrV1, 1, &lowerBound);
+		SafeArrayGetUBound(pArrV1, 1, &upperBound);
+
+		long cnt_elements = upperBound - lowerBound + 1;
+		for (int i = 0; i < cnt_elements; ++i)
+		{
+			arrValue[i] = static_cast<double>(pVals[i]);
+		}
+		SafeArrayUnaccessData(pArrV1);
+	}
+	SafeArrayDestroy(pArrV1);
+}
+
+// Matrix
+void
+please::_get_matrix(VARIANT varValue, double *arrValue)
+{
+	SAFEARRAY *pArrV1 = varValue.parray;
+	double *pVals;
+	//double arrValue[16];
+	HRESULT hr = SafeArrayAccessData(pArrV1, (void**)&pVals);
+	if (SUCCEEDED(hr))
+	{
+		long lowerBound, upperBound;
+		SafeArrayGetLBound(pArrV1, 1, &lowerBound);
+		SafeArrayGetUBound(pArrV1, 1, &upperBound);
+
+		long cnt_elements = upperBound - lowerBound + 1;
+		for (int i = 0; i < cnt_elements; ++i)
+		{
+			arrValue[i] = pVals[i];
+		}
+		SafeArrayUnaccessData(pArrV1);
+	}
+	SafeArrayDestroy(pArrV1);
+}
+
+// LSC to WSC
+void
+please::_lsc_to_wsc(double *matrix, double *coordinate, double *arrValue) 
+{
+	arrValue[0] = (matrix[0] * coordinate[0] + matrix[4] * coordinate[1]) + matrix[12];
+	arrValue[1] = (matrix[1] * coordinate[0] + matrix[5] * coordinate[1]) + matrix[13];
+	arrValue[2] = (matrix[10] * coordinate[2]) + matrix[14];
+}
+
+// Nawisworks API
+void
+NavisworksHandler::Runner(IUnknown* iunk_state)
+{
+	AdNavis::Document^ doc = AdNavis::Application::ActiveDocument;
+	AdNavis::ModelItemCollection^ model_item_collection = doc->CurrentSelection->SelectedItems;
+
+	AdNavis::ModelItemCollection^ id_object_coll = gcnew AdNavis::ModelItemCollection();
+
+	dateClass::outfile = gcnew System::IO::StreamWriter("D:\\vertex_test.txt");
+
+	// Find where ID_Element
+	for each (AdNavis::ModelItem^ model_item in id_object_coll->Descendants)
+	{
+		
+		dateClass::outfile->WriteLine(model_item->ClassDisplayName);
+	}
+
+	dateClass::outfile->Close();
+}
+
+void
+NavisworksHandler::Finder(AdNavis::ModelItem^ model_item, BSTR internal_name, char* user_name)
+{
+	InteropComApi::InwOpState10^ interop_state = ComApiAccess::ComApiBridge::State; 
+	IUnknown* iunk_state = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(interop_state).ToPointer());
+
+	ComApiAccess::ComApiBridge::ToInwOpSelection(model_item->);
+
+	raw::InwOpState10Ptr state(iunk_state);
+	raw::InwOpSelection2Ptr pSelect = state->CurrentSelection;
+
+	raw::InwOpSelectionSet2Ptr oNewSelSet = state->ObjectFactory(raw::eObjectType_nwOpSelectionSet);
+	oNewSelSet->name = SysAllocString(L"ByCategorySelection");
+
+	raw::InwOpFindSpecPtr nwFindSpec = state->ObjectFactory(raw::eObjectType_nwOpFindSpec);
+	raw::InwOpFindConditionPtr nwFindCondition = state->ObjectFactory(raw::eObjectType_nwOpFindCondition);
+
+	//BSTR internal_name = SysAllocString(L"LcOpGeometryProperty");
+	//nwFindCondition->SetAttributeNames(internal_name, _variant_t("Геометрия"));
+
+	nwFindCondition->SetAttributeNames(internal_name, _variant_t(user_name));
+	nwFindCondition->Condition = raw::eFind_HAS_ATTRIB;
+
+	nwFindSpec->selection = pSelect;
+	nwFindSpec->SearchMode = raw::eSearchMode_BELOW_SELECTED_PATHS;
+	nwFindSpec->Conditions()->Add(nwFindCondition);
+
+	oNewSelSet->ImplicitFindSpec = nwFindSpec;
+
+}
+###########################################################################################################################
+#pragma once
+
+#include <Unknwn.h>
+#include<vector>
+namespace AdNavis = Autodesk::Navisworks::Api;
+using namespace std;
+
+class please
+{
+public:
+   static void doit_primitive(IUnknown* iunk_state);
+   static void work_it(IUnknown* iunk_state);
+   static void _get_coordinate(VARIANT varValue, double *arrValue);
+   static void _get_matrix(VARIANT varValue, double *arrValue);
+   static void _lsc_to_wsc(double *matrix, double *coordinate, double *wsc_coordinate);
+};
+
+class NavisworksHandler 
+{
+public:
+	static void Runner(IUnknown* iunk_state);
+	static void Finder(AdNavis::ModelItem^ model_item, BSTR internal_name, char* user_name);
+};
+
+###########################################################################################################################
+		//InteropComApi::InwOpState10^ opState = ComApiAccess::ComApiBridge::State; 
+		//IUnknown* iunk_state = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(opState).ToPointer());
+	
+		//InteropComApi::InwOpSelection2^ opSelection = static_cast<InteropComApi::InwOpSelection2^>(ComApiAccess::ComApiBridge::ToInwOpSelection(collection));
+		//IUnknown* iunk_selection = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(opSelection).ToPointer());
+	
+		//InteropComApi::InwOpSelectionSet2^ newOpSelectionSet = static_cast<InteropComApi::InwOpSelectionSet2^>(opState->ObjectFactory(InteropComApi::nwEObjectType::eObjectType_nwOpSelectionSet, NULL, NULL));
+		//IUnknown* iunk_selection_set = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(newOpSelectionSet).ToPointer());
+		//raw::InwOpSelection2Ptr newPtrSelect(iunk_selection_set);
+		//System::IntPtr ptrInt = Marshal::GetIUnknownForObject(newOpSelectionSet);
+
+
+		//raw::InwOpState10Ptr pState(iunk_state);
+		//raw::InwOpSelection2Ptr pSelect(iunk_selection);
+	
+		//raw::InwOpSelectionSet2Ptr oNewSelSet = pState->ObjectFactory(raw::eObjectType_nwOpSelectionSet);
+		//oNewSelSet->name = SysAllocString(L"ByCategorySelection");
+	
+		//raw::InwOpFindSpecPtr nwFindSpec = pState->ObjectFactory(raw::eObjectType_nwOpFindSpec);
+		//raw::InwOpFindConditionPtr nwFindCondition = pState->ObjectFactory(raw::eObjectType_nwOpFindCondition);
+
+		//BSTR internal_name = _bstr_t(internal_name_ch);
+
+		//nwFindCondition->SetAttributeNames(internal_name, _variant_t(user_name));
+		//nwFindCondition->Condition = raw::eFind_HAS_ATTRIB;
+	
+		//nwFindSpec->selection = pSelect;
+		//nwFindSpec->SearchMode = raw::eSearchMode_BELOW_SELECTED_PATHS;
+		//nwFindSpec->Conditions()->Add(nwFindCondition);
+	
+		//oNewSelSet->ImplicitFindSpec = nwFindSpec;
+
+		//newPtrSelect = oNewSelSet;
+
+		//InteropComApi::InwOpSelectionSet2^ opNewSelection = static_cast<InteropComApi::InwOpSelectionSet2^>(Marshal::GetObjectForIUnknown(ptrInt));
+
+		//InteropComApi::InwOpSelection2^ opNewSelection = static_cast<InteropComApi::InwOpSelection2^>(ComApiAccess::ComApiBridge::ToInwOpSelection(collection));
+		//IUnknown* iunk_selection = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(oNewSelSet).ToPointer());
+		//IUnknown* iunk_new_select = static_cast<IUnknown*>(oNewSelSet);
+		
+		/*raw::InwOpSelection2Ptr* pstr;
+		HRESULT hr = oNewSelSet->QueryInterface((void**)&pstr);
+		
+		InteropComApi::InwOpSelection2^ opNewSelection = static_cast<InteropComApi::InwOpSelection2^>(Marshal::GetObjectForIUnknown(pstr->));*/
+		//InteropComApi::InwOpSelection2^ opNewSelection = static_cast<InteropComApi::InwOpSelection2^>(Marshal::GetTypedObjectForIUnknown(oNewSelSet, std::typeof(InteropComApi::InwOpSelection2)));
+		//raw::InwOpSelectionSet2* pS = oNewSelSet.GetInterfacePtr();
+		
+		//InteropComApi::InwOpSelectionSet2^ opNewSelection = static_cast<InteropComApi::InwOpSelectionSet2^>(Marshal::GetTypedObjectForIUnknown(iunk_selection_set));
+	
+	InteropComApi::InwOpState10^ opState = ComApiAccess::ComApiBridge::State;
+	IUnknown* iunk_state = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(opState).ToPointer());
+
+	InteropComApi::InwOpSelection2^ opSelection = static_cast<InteropComApi::InwOpSelection2^>(ComApiAccess::ComApiBridge::ToInwOpSelection(collection));
+	IUnknown* iunk_selection = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(opSelection).ToPointer());
+
+	InteropComApi::InwOpSelectionSet2^ newOpSelectionSet = static_cast<InteropComApi::InwOpSelectionSet2^>(opState->ObjectFactory(InteropComApi::nwEObjectType::eObjectType_nwOpSelectionSet, NULL, NULL));
+	IUnknown* iunk_selection_set = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(newOpSelectionSet).ToPointer());
+	raw::InwOpSelectionSet2Ptr newPtrSelect(iunk_selection_set);
+	System::IntPtr ptrInt = Marshal::GetIUnknownForObject(newOpSelectionSet);
+
+
+	raw::InwOpState10Ptr pState(iunk_state);
+	raw::InwOpSelection2Ptr pSelect(iunk_selection);
+
+	raw::InwOpSelectionSet2Ptr oNewSelSet = pState->ObjectFactory(raw::eObjectType_nwOpSelectionSet);
+	oNewSelSet->name = SysAllocString(L"ByCategorySelection");
+
+	raw::InwOpFindSpecPtr nwFindSpec = pState->ObjectFactory(raw::eObjectType_nwOpFindSpec);
+	raw::InwOpFindConditionPtr nwFindCondition = pState->ObjectFactory(raw::eObjectType_nwOpFindCondition);
+
+	BSTR internal_name = _bstr_t(internal_name_ch);
+
+	nwFindCondition->SetAttributeNames(internal_name, _variant_t(user_name));
+	nwFindCondition->Condition = raw::eFind_HAS_ATTRIB;
+
+	nwFindSpec->selection = pSelect;
+	nwFindSpec->SearchMode = raw::eSearchMode_BELOW_SELECTED_PATHS;
+	nwFindSpec->Conditions()->Add(nwFindCondition);
+
+	oNewSelSet->ImplicitFindSpec = nwFindSpec;
+	
+	raw::InwOpSelection2Ptr selec2raw = static_cast<raw::InwOpSelection2Ptr>(oNewSelSet->selection);
+	long pppp = selec2raw->Paths()->Count;
+
+
+	newPtrSelect = oNewSelSet;
+
+	InteropComApi::InwOpSelectionSet2^ opNewSelection = static_cast<InteropComApi::InwOpSelectionSet2^>(Marshal::GetObjectForIUnknown(ptrInt));
+
+	InteropComApi::InwOpSelection2^ selec2 = static_cast<InteropComApi::InwOpSelection2^>(opNewSelection->selection);
+	long ppp = selec2->Paths()->Count;
+###########################################################################################################################
+	//Convert char* in BSTR
+	BSTR internal_name = _bstr_t(internal_name_ch);
+
+	//Marshalling InwOpState10
+	InteropComApi::InwOpState10^ opState = ComApiAccess::ComApiBridge::State;
+	System::IntPtr state10Ptr = Marshal::GetIUnknownForObject(opState);
+	IUnknown* iunk_state10 = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(opState).ToPointer());
+	raw::InwOpState10Ptr pState10(iunk_state10);
+
+	//Marshalling InwOpSelection2 This convertion ModelCollectionItem in Selection
+	InteropComApi::InwOpSelection2^ opSelection = static_cast<InteropComApi::InwOpSelection2^>(ComApiAccess::ComApiBridge::ToInwOpSelection(collection));
+
+	long opCount_Path = opSelection->Paths()->Count;
+
+	System::IntPtr select2Ptr = Marshal::GetIUnknownForObject(opSelection);
+	IUnknown* iunk_selection2 = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(opSelection).ToPointer());
+	raw::InwOpSelection2Ptr pSelect(iunk_selection2);
+
+	//InteropComApi::InwOpSelectionSet2^ newOpSelectionSet = static_cast<InteropComApi::InwOpSelectionSet2^>(opState->ObjectFactory(InteropComApi::nwEObjectType::eObjectType_nwOpSelectionSet, NULL, NULL));
+	//IUnknown* iunk_selection_set = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(newOpSelectionSet).ToPointer());
+	//raw::InwOpSelectionSet2Ptr newPtrSelect(iunk_selection_set);
+	//System::IntPtr ptrInt = Marshal::GetIUnknownForObject(newOpSelectionSet);
+
+	//Create seletion conditional
+	raw::InwOpSelectionSet2Ptr pSelSet2 = pState10->ObjectFactory(raw::eObjectType_nwOpSelectionSet);
+	pSelSet2->name = SysAllocString(L"ByCategorySelection");
+
+	//Create finder
+	raw::InwOpFindSpecPtr nwFindSpec = pState10->ObjectFactory(raw::eObjectType_nwOpFindSpec);
+	raw::InwOpFindConditionPtr nwFindCondition = pState10->ObjectFactory(raw::eObjectType_nwOpFindCondition);
+
+	nwFindCondition->SetAttributeNames(internal_name, _variant_t(user_name));
+	nwFindCondition->Condition = raw::eFind_HAS_ATTRIB;
+
+	nwFindSpec->selection = pSelect;
+	nwFindSpec->SearchMode = raw::eSearchMode_BELOW_SELECTED_PATHS;
+	nwFindSpec->Conditions()->Add(nwFindCondition);
+
+	pSelSet2->ImplicitFindSpec = nwFindSpec;
+	
+	//raw::InwOpSelection2Ptr selec2raw = static_cast<raw::InwOpSelection2Ptr>(pSelSet2->selection);
+	//long pppp = selec2raw->Paths()->Count;
+	//pSelect->SelectNone();
+	pSelect = pSelSet2->selection;
+
+	long count_PathP = pSelect->Paths()->Count;
+	long count_PathPSet = pSelSet2->selection->Paths()->Count;
+
+	InteropComApi::InwOpSelection2^ opSelectionNew = static_cast<InteropComApi::InwOpSelection2^>(Marshal::GetObjectForIUnknown(select2Ptr));
+
+	//InteropComApi::InwOpSelection2^ selec2 = static_cast<InteropComApi::InwOpSelection2^>(opNewSelection->selection);
+	//long ppp = selec2->Paths()->Count;
+
+	long count_PathOp = opSelectionNew->Paths()->Count;
+###########################################################################################################################
+//Convert char* in BSTR
+	BSTR internal_name = _bstr_t(internal_name_ch);
+
+	//Marshalling InwOpState10
+	InteropComApi::InwOpState10^ opState = ComApiAccess::ComApiBridge::State;
+	//System::IntPtr state10Ptr = Marshal::GetIUnknownForObject(opState);
+	IUnknown* iunk_state10 = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(opState).ToPointer());
+	raw::InwOpState10Ptr pState10(iunk_state10);
+
+	//Marshalling InwOpSelection2 This convertion ModelCollectionItem in Selection
+	InteropComApi::InwOpSelection2^ opSelection = static_cast<InteropComApi::InwOpSelection2^>(ComApiAccess::ComApiBridge::ToInwOpSelection(collection));
+	//System::IntPtr select2Ptr = Marshal::GetIUnknownForObject(opSelection);
+	IUnknown* iunk_selection2 = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(opSelection).ToPointer());
+	raw::InwOpSelection2Ptr pSelect(iunk_selection2);
+	long count1 = pSelect->Paths()->Count;
+
+	//Create seletion conditional
+	raw::InwOpSelectionSet2Ptr pSelSet2 = static_cast<raw::InwOpSelectionSet2Ptr>(pState10->ObjectFactory(raw::eObjectType_nwOpSelectionSet));
+	pSelSet2->name = SysAllocString(L"ByCategorySelection");
+
+	raw::InwOpFindSpecPtr nwFindSpec = pState10->ObjectFactory(raw::eObjectType_nwOpFindSpec);
+	raw::InwOpFindConditionPtr nwFindCondition = pState10->ObjectFactory(raw::eObjectType_nwOpFindCondition);
+
+	nwFindCondition->SetAttributeNames(internal_name);
+	nwFindCondition->Condition = raw::eFind_HAS_ATTRIB;
+
+	nwFindSpec->selection = pSelect;
+	nwFindSpec->SearchMode = raw::eSearchMode_BELOW_SELECTED_PATHS;
+	nwFindSpec->Conditions()->Add(nwFindCondition);
+
+	long count2 = nwFindSpec->selection->Paths()->Count;
+
+	pSelSet2->get_ImplicitFindSpec(nwFindSpec);
+	//pSelSet2->PutImplicitFindSpec(nwFindSpec);
+	//pSelSet2->ImplicitFindSpec = nwFindSpec;
+
+	long count3 = pSelSet2->selection->Paths()->Count;
+###########################################################################################################################
+//System::String internal_name = "LcOpGeometryProperty";
+	System::String^ user_name = "Геометрия";
+
+
+	InteropComApi::InwOpState10^ opState10 = ComApiAccess::ComApiBridge::State;
+	InteropComApi::InwOpSelectionSet2^ opSelectSet2 = static_cast<InteropComApi::InwOpSelectionSet2^>(opState10->ObjectFactory(InteropComApi::nwEObjectType::eObjectType_nwOpSelectionSet, NULL, NULL));
+	InteropComApi::InwOpSelection2^ opSelection = static_cast<InteropComApi::InwOpSelection2^>(ComApiAccess::ComApiBridge::ToInwOpSelection(collection));
+
+	opSelectSet2->name = "ByCategorySelection";
+
+	InteropComApi::InwOpFindSpec^ opfindSpec = static_cast<InteropComApi::InwOpFindSpec^>(opState10->ObjectFactory(InteropComApi::nwEObjectType::eObjectType_nwOpFindSpec, NULL, NULL));
+	InteropComApi::InwOpFindCondition^ opFindCondition = static_cast<InteropComApi::InwOpFindCondition^>(opState10->ObjectFactory(InteropComApi::nwEObjectType::eObjectType_nwOpFindCondition, NULL, NULL));
+
+	opFindCondition->SetAttributeNames("LcOpGeometryProperty", "");
+	opFindCondition->Condition = InteropComApi::nwEFindCondition::eFind_HAS_ATTRIB;
+
+	opfindSpec->selection = opSelection;
+
+	long count_path = opfindSpec->selection->Paths()->Count;
+
+	opfindSpec->SearchMode = InteropComApi::nwESearchMode::eSearchMode_SELECTED_PATHS;
+	opfindSpec->Conditions()->Add(opFindCondition);
+	int condition = opfindSpec->Conditions()->Count;
+	long count_path1 = opSelectSet2->selection->Paths()->Count;
+
+	opSelectSet2->ImplicitFindSpec = opfindSpec;
+
+	long count_path2 = opSelectSet2->selection->Paths()->Count;
+
+	/*for each (InteropComApi::InwOaPath^ oaPath3 in opSelectSet2->selection->Paths())
+	{
+		long count_frag = oaPath3->Fragments()->Count;
+	}*/
+###########################################################################################################################
+InteropComApi::InwOpState10^ interop_state = ComApiAccess::ComApiBridge::State;
+	System::IntPtr statePtr = Marshal::GetIUnknownForObject(interop_state);
+	IUnknown* iunk_state = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(interop_state).ToPointer());
+	raw::InwOpState10Ptr pState10(iunk_state);
+
+
+	raw::InwOpSelection2Ptr pSelect = pState10->CurrentSelection;
+
+
+	InteropComApi::InwOpSelectionSet2^ opSelSet2 = static_cast<InteropComApi::InwOpSelectionSet2^>(interop_state->ObjectFactory(InteropComApi::nwEObjectType::eObjectType_nwOpSelectionSet, NULL, NULL));
+	System::IntPtr selectSetPtr = Marshal::GetIUnknownForObject(opSelSet2);
+	IUnknown* iunk_selectSet = static_cast<IUnknown*>(Marshal::GetIUnknownForObject(opSelSet2).ToPointer());
+	//raw::InwOpSelectionSet2Ptr oNewSelSet = pState10->ObjectFactory(raw::eObjectType_nwOpSelectionSet);
+	raw::InwOpSelectionSet2Ptr oNewSelSet(iunk_selectSet);
+	oNewSelSet->name = SysAllocString(L"ByCategorySelection");
+
+	raw::InwOpFindSpecPtr nwFindSpec = pState10->ObjectFactory(raw::eObjectType_nwOpFindSpec);
+	raw::InwOpFindConditionPtr nwFindCondition = pState10->ObjectFactory(raw::eObjectType_nwOpFindCondition);
+
+	BSTR internal_name = SysAllocString(L"LcOpGeometryProperty");
+
+	nwFindCondition->SetAttributeNames(internal_name, _variant_t("Геометрия"));
+	nwFindCondition->Condition = raw::eFind_HAS_ATTRIB;
+
+	nwFindSpec->selection = pSelect;
+	nwFindSpec->SearchMode = raw::eSearchMode_BELOW_SELECTED_PATHS;
+	nwFindSpec->Conditions()->Add(nwFindCondition);
+
+	oNewSelSet->ImplicitFindSpec = nwFindSpec;
+
+	pState10->SelectionSets()->Add(oNewSelSet);
+	long count_path = oNewSelSet->selection->Paths()->Count;
+
+	InteropComApi::InwOpState10^ state = static_cast<InteropComApi::InwOpState10^>(Marshal::GetObjectForIUnknown(statePtr));
+	InteropComApi::InwOpSelection^ selection = state->CurrentSelection;
+
+	long count_path1 = selection->Paths()->Count;
+	long count_path2 = opSelSet2->selection->Paths()->Count;
+###########################################################################################################################
+using NavApi = Autodesk.Navisworks.Api;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace ExportGeometry.UnitsApp.Source.UpdateFile
+{
+    class EventSkin
+    {
+        public EventSkin()
+        {
+            EvApi ev = new EvApi();
+            ev_start(ev);
+        }
+
+        public void ev_start(EvApi ev)
+        {
+            // Test
+            //NavApi.FileReferenceResolver resolve = new NavApi.FileReferenceResolver();
+            
+            //NavApi.Application.ActiveDocumentChanged += ev.ActiveDocumentChanged;
+            //NavApi.Application.ActiveDocumentChanging += ev.ActiveDocumentChanging;
+            //NavApi.Application.DocumentAdded += ev.DocumentAdded;
+            NavApi.Application.DocumentRemoved += ev.DocumentRemoved;
+
+            //
+            NavApi.Application.FileInteractiveResolved += ev.FileInteractiveResolved;
+            NavApi.Application.FileInteractiveResolving += ev.FileInteractiveResolving;
+            NavApi.Application.FileResolved += ev.FileResolved;
+            NavApi.Application.FileResolving += ev.FileResolving;
+
+            // Test
+            //Autodesk.Navisworks.Api.Application.FileResolving += EvExApi.Application_FileResolving;
+            //Autodesk.Navisworks.Api.Application.FileResolved += EvExApi.Application_FileResolved;
+            //Autodesk.Navisworks.Api.Application.FileInteractiveResolving += EvExApi.Application_FileInteractiveResolving;
+            //Autodesk.Navisworks.Api.Application.FileInteractiveResolved += EvExApi.Application_FileInteractiveResolved;
+
+            //
+            //NavApi.Application.GuiCreated += ev.GuiCreated;
+            //NavApi.Application.GuiDestroying += ev.GuiDestroying;
+            //NavApi.Application.Idle += ev.Idle;
+            //NavApi.Application.MainDocumentChanged += ev.MainDocumentChanged;
+            //NavApi.Application.MainDocumentChanging += ev.MainDocumentChanging;
+            //NavApi.Application.ProgressBeginning += ev.ProgressBeginning;
+            //NavApi.Application.ProgressEnded += ev.ProgressEnded;
+            //NavApi.Application.ProgressErrorReporting += ev.ProgressErrorReporting;
+            //NavApi.Application.ProgressMessageReporting += ev.ProgressMessageReporting;
+            //NavApi.Application.ProgressSubOperationBegan += ev.ProgressSubOperationBegan;
+            //NavApi.Application.ProgressSubOperationEnded += ev.ProgressSubOperationEnded;
+            //NavApi.Application.ProgressUpdating += ev.ProgressUpdating;
+
+            //NavApi.FileReferenceResolveResult result = resolve.Resolve(@"D:\event_test_test.txt");
+            ////finally build the output
+            //StringBuilder output = new StringBuilder();
+            //output.AppendLine("FileReferenceResolveResult:");
+            //output.AppendLine("FileNameToOpen = " + result.FileNameToOpen);
+            //output.AppendLine("ResolvedFileReference = " + result.ResolvedFileReference);
+            //output.AppendLine("Response = " + result.Response);
+
+
+            //MessageBox.Show(output.ToString());
+        }
+
+        public void ev_stop(EvApi ev)
+        {
+            NavApi.Application.ActiveDocumentChanged -= ev.ActiveDocumentChanged;
+            NavApi.Application.ActiveDocumentChanging -= ev.ActiveDocumentChanging;
+            NavApi.Application.DocumentAdded -= ev.DocumentAdded;
+            NavApi.Application.DocumentRemoved -= ev.DocumentRemoved;
+
+            // File
+            NavApi.Application.FileInteractiveResolved -= ev.FileInteractiveResolved;
+            NavApi.Application.FileInteractiveResolving -= ev.FileInteractiveResolving;
+            NavApi.Application.FileResolved -= ev.FileResolved;
+            NavApi.Application.FileResolving -= ev.FileResolving;
+            // End File
+
+            NavApi.Application.GuiCreated -= ev.GuiCreated;
+            NavApi.Application.GuiDestroying -= ev.GuiDestroying;
+
+            //NavApi.Application.Idle -= ev.Idle;
+
+            NavApi.Application.MainDocumentChanged -= ev.MainDocumentChanged;
+            NavApi.Application.MainDocumentChanging -= ev.MainDocumentChanging;
+            NavApi.Application.ProgressBeginning -= ev.ProgressBeginning;
+            NavApi.Application.ProgressEnded -= ev.ProgressEnded;
+            NavApi.Application.ProgressErrorReporting -= ev.ProgressErrorReporting;
+            NavApi.Application.ProgressMessageReporting -= ev.ProgressMessageReporting;
+            NavApi.Application.ProgressSubOperationBegan -= ev.ProgressSubOperationBegan;
+            NavApi.Application.ProgressSubOperationEnded -= ev.ProgressSubOperationEnded;
+
+            //NavApi.Application.ProgressUpdating -= ev.ProgressUpdating;
+        }
+    }
+
+    class EvApi
+    {
+        System.IO.StreamWriter sw = new System.IO.StreamWriter(@"D:\event_test.txt");
+        System.IO.StreamWriter sw_d = new System.IO.StreamWriter(@"D:\FileResolved.txt");
+        System.IO.StreamWriter sw_g = new System.IO.StreamWriter(@"D:\FileResolving.txt");
+        System.IO.StreamWriter sw_ed = new System.IO.StreamWriter(@"D:\FileInteractiveResolved.txt");
+        System.IO.StreamWriter sw_eg = new System.IO.StreamWriter(@"D:\FileInteractiveResolving.txt");
+
+
+        // Сводка:
+        // Происходит, когда Autodesk.Navisworks.Api.Application.ActiveDocument изменился
+        public void ActiveDocumentChanged(object sender, System.EventArgs e)
+        {
+            
+            sw.WriteLine("ActiveDocumentChanged - Происходит, когда Autodesk.Navisworks.Api.Application.ActiveDocument изменился");
+        }
+        // Сводка:
+        // Происходит, когда Autodesk.Navisworks.Api.Application.ActiveDocument собирается
+        //     менять
+        public void ActiveDocumentChanging(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("ActiveDocumentChanging - Происходит, когда Autodesk.Navisworks.Api.Application.ActiveDocument собирается менять");
+        }
+        // Сводка:
+        // Происходит при создании состояния приложения BIM360. Autodesk.Navisworks.Api.Application.Gui
+        // будет ненулевым
+        public void Bim360Created(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("");
+        }
+        // Сводка:
+        // Происходит, когда состояние BIM360 приложения собирается быть уничтоженным. Autodesk.Navisworks.Api.Application.Gui
+        // будет установлено в нуль после того, как это событие было поднято.
+        public void Bim360Destroying(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("");
+        }
+        // Сводка:
+        // Происходит, когда Autodesk.Navisworks.Api.Document был добавлен в Autodesk.Navisworks.Api.Application.Documents.
+        // коллекция. Обычно вскоре после того, как документ был создан.
+        public void DocumentAdded(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("DocumentAdded - Происходит, когда Autodesk.Navisworks.Api.Document был добавлен в Autodesk.Navisworks.Api.Application.Documents. коллекция. Обычно вскоре после того, как документ был создан.");
+        }
+        // Сводка:
+        // Происходит, когда Autodesk.Navisworks.Api.Document был удален из Autodesk.Navisworks.Api.Application.Documents.
+        // коллекция. Обычно незадолго до уничтожения Документа.
+        public void DocumentRemoved(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("DocumentRemoved - Происходит, когда Autodesk.Navisworks.Api.Document был удален из Autodesk.Navisworks.Api.Application.Documents.коллекция. Обычно незадолго до уничтожения Документа.");
+
+            sw_d.Close();
+            sw_g.Close();
+            sw_ed.Close();
+            sw_eg.Close();
+            sw.Close();
+        }
+        // Сводка:
+        // Происходит, когда ссылка на файл была интерактивно разрешена. Поднято до FileResolved
+        // если автоматическое разрешение не удалось.
+        public void FileInteractiveResolved(object sender, NavApi.FileInteractiveResolvedEventArgs e)
+        {
+            StringBuilder output = new StringBuilder();
+            if (e is NavApi.FileInteractiveResolvedEventArgs)
+            {
+                output.AppendLine();
+                output.AppendLine("FileInteractiveResolvedEventArgs properties:");
+                output.AppendLine("e.ResolvedFileReference = " + ((((NavApi.FileInteractiveResolvedEventArgs)e).ResolvedFileReference == null) ? "null" : ((NavApi.FileInteractiveResolvedEventArgs)e).ResolvedFileReference));
+                output.AppendLine("e.Response = " + ((NavApi.FileInteractiveResolvedEventArgs)e).Response.ToString());
+            }
+            sw_ed.WriteLine("FileInteractiveResolvedEventArgs - " + output);
+
+            //sw.WriteLine("FileInteractiveResolved - Происходит, когда ссылка на файл была интерактивно разрешена. Поднято до FileResolved если автоматическое разрешение не удалось.");
+        }
+        //
+        // Сводка:
+        // Происходит, когда ссылка на файл требует интерактивного разрешения. Поднял после
+        // FileResolving, если автоматическое разрешение не удалось.
+        public void FileInteractiveResolving(object sender, NavApi.FileInteractiveResolvingEventArgs e)
+        {
+            StringBuilder output = new StringBuilder();
+            if (e is NavApi.FileInteractiveResolvingEventArgs)
+            {
+                output.AppendLine();
+                output.AppendLine("FileInteractiveResolvingEventArgs properties:");
+                output.AppendLine("e.DisplayString = " + ((((NavApi.FileInteractiveResolvingEventArgs)e).DisplayString == null) ? "null" : ((NavApi.FileInteractiveResolvingEventArgs)e).DisplayString));
+                output.AppendLine("e.Handled = " + ((NavApi.FileInteractiveResolvingEventArgs)e).Handled.ToString());
+                output.AppendLine("e.ResolvedFileReference = " + ((((NavApi.FileInteractiveResolvingEventArgs)e).ResolvedFileReference == null) ? "null" : ((NavApi.FileInteractiveResolvingEventArgs)e).ResolvedFileReference));
+                output.AppendLine("e.Response = " + ((NavApi.FileInteractiveResolvingEventArgs)e).Response.ToString());
+            }
+            sw_eg.WriteLine("FileInteractiveResolvingEventArgs: " + output);
+            //sw.WriteLine("FileInteractiveResolving - Происходит, когда ссылка на файл требует интерактивного разрешения. Поднял после FileResolving, если автоматическое разрешение не удалось.");
+        }
+        // Сводка:
+        // Происходит, когда ссылка на файл была разрешена. Обычно при открытии файла.
+        public void FileResolved(object sender, NavApi.FileResolvedEventArgs e)
+        {
+            StringBuilder output = new StringBuilder();
+            
+            if (e is NavApi.FileResolvedEventArgs)
+            {
+                output.AppendLine("FileNameToOpen = " + ((((NavApi.FileResolvedEventArgs)e).FileNameToOpen == null) ? "null" : ((NavApi.FileResolvedEventArgs)e).FileNameToOpen.ToString()));
+                output.AppendLine("FileReference = " + ((NavApi.FileResolvedEventArgs)e).FileReference);
+                output.AppendLine("ReferringFileNameAsSaved = " + ((NavApi.FileResolvedEventArgs)e).ReferringFileNameAsSaved);
+                output.AppendLine("ResolvedFileReference = " + ((((NavApi.FileResolvedEventArgs)e).ResolvedFileReference == null) ? "null" : ((NavApi.FileResolvedEventArgs)e).ResolvedFileReference.ToString()));
+                output.AppendLine("ResolvedFileReferenceType = " + ((NavApi.FileResolvedEventArgs)e).ResolvedFileReferenceType.ToString());
+            }
+
+            sw_d.WriteLine("FileResolvedEventArgs: " + output);
+            //sw.WriteLine("FileResolved - Происходит, когда ссылка на файл была разрешена. Обычно при открытии файла.");
+        }
+        // Сводка:
+        // Происходит, когда ссылка на файл была разрешена. Обычно при открытии файла.
+        public void FileResolving(object sender, NavApi.FileResolvingEventArgs e)
+        {
+            StringBuilder output = new StringBuilder();
+
+            if (e is NavApi.FileResolvingEventArgs)
+            {
+                output.AppendLine("FileNameToOpen = " + ((((NavApi.FileResolvingEventArgs)e).FileNameToOpen == null) ? "null" : ((NavApi.FileResolvingEventArgs)e).FileNameToOpen.ToString()));
+                output.AppendLine("FileReference = " + ((NavApi.FileResolvingEventArgs)e).FileReference);
+                output.AppendLine("ReferringFileNameAsSaved = " + ((NavApi.FileResolvingEventArgs)e).ReferringFileNameAsSaved);
+                output.AppendLine("ResolvedFileReference = " + ((((NavApi.FileResolvingEventArgs)e).ResolvedFileReference == null) ? "null" : ((NavApi.FileResolvingEventArgs)e).ResolvedFileReference.ToString()));
+                //output.AppendLine("ResolvedFileReferenceType = " + ((NavApi.FileResolvingEventArgs)e).ResolvedFileReferenceType.ToString());
+            }
+
+            sw_g.WriteLine("FileResolvedEventArgs: " + output);
+            //sw.WriteLine("FileResolving - Происходит, когда ссылка на файл была разрешена. Обычно при открытии файла.");
+        }
+        //
+        // Сводка:
+        //     Происходит, когда графический интерфейс приложения был создан. Autodesk.Navisworks.Api.Application.Gui будет иметь ненулевое значение.
+        public void GuiCreated(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("GuiCreated - Происходит, когда графический интерфейс приложения был создан. Autodesk.Navisworks.Api.Application.Gui будет иметь ненулевое значение.");
+        }
+        // Сводка:
+        // Происходит, когда GUI приложения собирается быть уничтоженным. Autodesk.Navisworks.Api.Application.Gui
+        // будет установлено в нуль после того, как это событие было поднято.
+        public void GuiDestroying(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("GuiDestroying - Происходит, когда GUI приложения собирается быть уничтоженным. Autodesk.Navisworks.Api.Application.Gui будет установлено в нуль после того, как это событие было поднято.");
+        }
+
+
+        // Сводка:
+        // Происходит, когда приложение завершает обработку и собирается войти в режим ожидания
+        //     государство.
+        public void Idle(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("Idle - Происходит, когда приложение завершает обработку и собирается войти в режим ожидания");
+        }
+
+
+        // Сводка:
+        // Происходит, когда Autodesk.Navisworks.Api.Application.ActiveDocument изменился
+        public void MainDocumentChanged(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("MainDocumentChanged - Происходит, когда Autodesk.Navisworks.Api.Application.ActiveDocument изменился");
+        }
+        // Сводка:
+        // Происходит, когда Autodesk.Navisworks.Api.Application.ActiveDocument собирается
+        //     менять.
+        public void MainDocumentChanging(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("MainDocumentChanging - Происходит, когда Autodesk.Navisworks.Api.Application.ActiveDocument собирается менять.");
+        }
+        // Сводка:
+        // Происходит при вызове BeginProgress (). Если какой-либо обработчик помечает событие как обработанное,
+        // стандартное диалоговое окно прогресса не будет отображаться.
+        public void ProgressBeginning(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("ProgressBeginning - Происходит при вызове BeginProgress (). Если какой-либо обработчик помечает событие как обработанное, стандартное диалоговое окно прогресса не будет отображаться.");
+        }
+        // Сводка:
+        // Происходит при вызове Autodesk.Navisworks.Api.Application.EndProgress.
+        public void ProgressEnded(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("ProgressEnded - Происходит при вызове Autodesk.Navisworks.Api.Application.EndProgress.");
+        }
+        // Сводка:
+        // Происходит при возникновении ошибки во время жизни Autodesk.Navisworks.Api.Progress
+        // объект. Например, если при открытии большого файла произошла ошибка, ошибка
+        // может отображаться пользователю, которому предлагается возможность отменить.
+        public void ProgressErrorReporting(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("ProgressErrorReporting - Происходит при возникновении ошибки во время жизни Autodesk.Navisworks.Api.Progress объект. Например, если при открытии большого файла произошла ошибка, ошибка может отображаться пользователю, которому предлагается возможность отменить.");
+        }
+        // Сводка:
+        // Происходит во время отчетов Autodesk.Navisworks.Api.Progress при описании сообщения
+        // текущая операция обновлена.
+        public void ProgressMessageReporting(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("ProgressMessageReporting - Происходит во время отчетов Autodesk.Navisworks.Api.Progress при описании сообщения текущая операция обновлена.");
+        }
+        // Сводка:
+        // Происходит при вызове Autodesk.Navisworks.Api.Progress.
+        public void ProgressSubOperationBegan(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("ProgressSubOperationBegan - Происходит при вызове Autodesk.Navisworks.Api.Progress.");
+        }
+        // Сводка:
+        // Происходит при вызове Autodesk.Navisworks.Api.Progress.
+        public void ProgressSubOperationEnded(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("ProgressSubOperationEnded - Происходит при вызове Autodesk.Navisworks.Api.Progress.");
+        }
+        // Сводка:
+        // Происходит во время создания отчета Autodesk.Navisworks.Api.Progress при обновлении прогресса.
+        public void ProgressUpdating(object sender, System.EventArgs e)
+        {
+            sw.WriteLine("ProgressUpdating - Происходит во время создания отчета Autodesk.Navisworks.Api.Progress при обновлении прогресса.");
+        }
+    }
+
+
+    class EvExApi
+    {
+        public static String GetEventArgInfo(NavApi.FileResolutionEventArgs e)
+        {
+            StringBuilder output = new StringBuilder();
+
+            if (e != null)
+            {
+                //base class FileResolutionEventArgs
+                output.AppendLine("FileResolutionEventArgs properties:");
+                output.AppendLine("e.FileReference = " + ((e.FileReference == null) ? "null" : e.FileReference.ToString()));
+                output.AppendLine("e.FileReferenceType = " + e.FileReferenceType.ToString());
+                output.AppendLine("e.ReferringFileName = " + ((e.ReferringFileName == null) ? "null" : e.ReferringFileName.ToString()));
+                output.AppendLine("e.ReferringFileNameAsSaved = " + ((e.ReferringFileNameAsSaved == null) ? "null" : e.ReferringFileNameAsSaved.ToString()));
+                output.AppendLine("e.ResolveToOpen = " + e.ResolveToOpen.ToString());
+
+                if (e is NavApi.FileResolvingEventArgs)
+                {
+                    output.AppendLine();
+                    output.AppendLine("FileResolvingEventArgs properties:");
+                    output.AppendLine("e.FileNameToOpen = " + ((((NavApi.FileResolvingEventArgs)e).FileNameToOpen == null) ? "null" : ((NavApi.FileResolvingEventArgs)e).FileNameToOpen.ToString()));
+                    output.AppendLine("e.ResolvedFileReference = " + ((((NavApi.FileResolvingEventArgs)e).ResolvedFileReference == null) ? "null" : ((NavApi.FileResolvingEventArgs)e).ResolvedFileReference.ToString()));
+                }
+                else if (e is NavApi.FileResolvedEventArgs)
+                {
+                    output.AppendLine();
+                    output.AppendLine("FileResolvedEventArgs properties:");
+                    output.AppendLine("e.FileNameToOpen = " + ((((NavApi.FileResolvedEventArgs)e).FileNameToOpen == null) ? "null" : ((NavApi.FileResolvedEventArgs)e).FileNameToOpen.ToString()));
+                    output.AppendLine("e.ResolvedFileReference = " + ((((NavApi.FileResolvedEventArgs)e).ResolvedFileReference == null) ? "null" : ((NavApi.FileResolvedEventArgs)e).ResolvedFileReference.ToString()));
+                    output.AppendLine("e.ResolvedFileReferenceType = " + ((NavApi.FileResolvedEventArgs)e).ResolvedFileReferenceType.ToString());
+                }
+                else if (e is NavApi.FileInteractiveResolvingEventArgs)
+                {
+                    output.AppendLine();
+                    output.AppendLine("FileInteractiveResolvingEventArgs properties:");
+                    output.AppendLine("e.DisplayString = " + ((((NavApi.FileInteractiveResolvingEventArgs)e).DisplayString == null) ? "null" : ((NavApi.FileInteractiveResolvingEventArgs)e).DisplayString));
+                    output.AppendLine("e.Handled = " + ((NavApi.FileInteractiveResolvingEventArgs)e).Handled.ToString());
+                    output.AppendLine("e.ResolvedFileReference = " + ((((NavApi.FileInteractiveResolvingEventArgs)e).ResolvedFileReference == null) ? "null" : ((NavApi.FileInteractiveResolvingEventArgs)e).ResolvedFileReference));
+                    output.AppendLine("e.Response = " + ((NavApi.FileInteractiveResolvingEventArgs)e).Response.ToString());
+                }
+                else if (e is NavApi.FileInteractiveResolvedEventArgs)
+                {
+                    output.AppendLine();
+                    output.AppendLine("FileInteractiveResolvedEventArgs properties:");
+                    output.AppendLine("e.ResolvedFileReference = " + ((((NavApi.FileInteractiveResolvedEventArgs)e).ResolvedFileReference == null) ? "null" : ((NavApi.FileInteractiveResolvedEventArgs)e).ResolvedFileReference));
+                    output.AppendLine("e.Response = " + ((NavApi.FileInteractiveResolvedEventArgs)e).Response.ToString());
+                }
+            }
+            return output.ToString();
+        }
+
+        public static void Application_FileResolving(object sender, NavApi.FileResolvingEventArgs e)
+        {
+            string output = GetEventArgInfo(e);
+
+            //output to screen
+            MessageBox.Show(output, "Application.FileResolving");
+
+            //Browse for file
+            OpenFileDialog fileToResolveTo = new OpenFileDialog();
+            fileToResolveTo.Title = "Application.FileResolving - Browse For File";
+
+            //Ask user if resolve information is ok?
+            if (fileToResolveTo.ShowDialog() == DialogResult.OK)
+            {
+                //set the required properties
+                e.FileNameToOpen = fileToResolveTo.FileName;
+                e.ResolvedFileReference = fileToResolveTo.FileName;
+
+                //latest value for output
+                output = "Are these values acceptable?\n\n" + GetEventArgInfo(e);
+
+                if (MessageBox.Show(output, "Application.FileResolving", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    //mark as handled, so that Application.FileInteractiveResolving and
+                    //Application_FileInteractiveResolved are not sent
+                    e.Handled = true;
+                }
+            }
+        }
+
+        public static void Application_FileResolved(object sender, NavApi.FileResolvedEventArgs e)
+        {
+            string output = GetEventArgInfo(e);
+            MessageBox.Show(output.ToString(), "Application.FileResolved");
+        }
+
+        public static void Application_FileInteractiveResolving(object sender, NavApi.FileInteractiveResolvingEventArgs e)
+        {
+            //mark as handled, so that Application.FileInteractiveResolving and
+            //Application_FileInteractiveResolved are not handled in the default manner by the GUI.
+            e.Handled = true;
+
+            string output = GetEventArgInfo(e);
+
+            //output to screen
+            MessageBox.Show(output, "Application.FileResolving");
+
+            //Browse for file
+            OpenFileDialog fileToResolveTo = new OpenFileDialog();
+            fileToResolveTo.Title = "Application.FileResolving - Browse For File - " + e.DisplayString.ToString();
+
+            //Ask user if resolve information is ok?
+            if (fileToResolveTo.ShowDialog() == DialogResult.OK)
+            {
+                //set the required properties
+                e.Response = NavApi.FileResolutionResponse.OK;
+                e.ResolvedFileReference = fileToResolveTo.FileName;
+
+                //latest value for output
+                output = "Are these values acceptable?\n\n" + GetEventArgInfo(e);
+
+                MessageBox.Show(output, "Application.FileResolving");
+            }
+        }
+
+        public static void Application_FileInteractiveResolved(object sender, NavApi.FileInteractiveResolvedEventArgs e)
+        {
+            string output = GetEventArgInfo(e);
+            MessageBox.Show(output.ToString(), "Application.FileInteractiveResolved");
+        }
+    }
+}
+
+###########################################################################################################################
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Autodesk.Navisworks.Api;
+using Autodesk.Navisworks.Api.DocumentParts;
+using System.Runtime.InteropServices;
+using ComApiBridge = Autodesk.Navisworks.Api.ComApi.ComApiBridge;
+using ComApi = Autodesk.Navisworks.Api.Interop.ComApi;
+using System.IO;
+namespace ExportGeometry.UnitsApp.Source.UpdateFile
+{
+    class FilesModel
+    {
+        List<string> global_path = new List<string>();
+
+        public FilesModel()
+        {
+            ModelItemCollection select_item = GetModelCollection();
+            ModelItemCollection finde_item = FindPartitionModel();
+
+            test_method(finde_item);
+        }
+
+        // Get Sellect  
+        private ModelItemCollection GetModelCollection()
+        {
+            ModelItemCollection select_item = Autodesk.Navisworks.Api.Application.ActiveDocument.CurrentSelection.SelectedItems;
+
+            if (select_item.Count == 0)
+            {
+                Autodesk.Navisworks.Api.Application.ActiveDocument.CurrentSelection.SelectAll();
+                select_item = Autodesk.Navisworks.Api.Application.ActiveDocument.CurrentSelection.SelectedItems;
+            }
+
+            return select_item;
+        }
+
+        // Find PartitionModel
+        private ModelItemCollection FindPartitionModel()
+        {
+            Helpers.FinderItem finder = new Helpers.FinderItem(0);
+
+            string cat_internal_name = "LcOaNode";
+            string cat_user_name = "Элемент";
+            string prop_internal_name = "LcOaSceneBaseClassName";
+            string prop_user_name = "Внутренний тип";
+            string value = "LcOaPartition";
+
+            return finder._SearchByCategoryAndProperty(cat_internal_name, cat_user_name, prop_internal_name, prop_user_name, value);
+        }
+
+        // to position the model in the file
+        private Array GetArrayData(ModelItem model_item)
+        {
+            ComApi.InwOaPath3 opPath3 = ComApiBridge.ToInwOaPath(model_item) as ComApi.InwOaPath3;
+            Array array_data = (Array)(object)opPath3.ArrayData;
+            return array_data;
+        }
+
+        // input the name of the output file possible file path
+        private string[] GetPathFiles(string file_in, string search_file)
+        {
+            if (file_in.Equals("") || !file_in.Contains(".txt"))
+                return null;
+
+            List<string> list = new List<string>();
+
+            using (StreamReader sr = new StreamReader(file_in))
+            {
+                string line = "";
+
+                while((line = sr.ReadLine()) != null)
+                {
+                    if (line.Contains(search_file) && ValidFile(line))
+                        list.Add(line);
+                }
+            }
+            return list.ToArray();
+        }
+        
+        // проверка на расширение файла
+        private bool ValidFile(string path)
+        {
+            bool trigger = false;
+
+            string file = Path.GetFileName(path);
+
+            if (file.Contains(".dgn"))
+                trigger = true;
+            if (file.Contains(".nwf"))
+                trigger = true;
+            if (file.Contains(".nwc"))
+                trigger = true;
+            if (file.Contains(".dwg"))
+                trigger = true;
+            if (file.Contains(".fbx"))
+                trigger = true;
+            
+            if (file.Contains(".i.dgn"))
+                trigger = false;
+            if (file.Contains(".tmp"))
+                trigger = false;
+
+            return trigger;
+        }
+
+        // test test test
+        private void test_method(ModelItemCollection finde_item)
+        {
+            //string file_in = Helpers.CallingFileBrowser.GetFile();
+            string file_in = @"D:\out.txt";
+
+            if (file_in.Equals(""))
+                return;
+
+            foreach (ModelItem model_i in finde_item)
+            {
+                if (model_i.HasModel)
+                {
+                    // получить имя файла
+                    string f_n = Path.GetFileName(model_i.Model.SourceFileName);
+
+                    if (f_n.Contains(".nwd"))
+                        f_n.Replace(".nwd", ".nwf");
+
+
+                    // найти путь к файлу
+                    string[] paths = GetPathFiles(file_in, f_n);
+
+
+                    if(paths != null && paths.Length != 0)
+                    {
+                        global_path.AddRange(paths);
+                    }
+                }
+            }
+
+
+            using (StreamWriter sw = new StreamWriter(@"D:\out_path.txt"))
+            {
+                foreach(string f in global_path)
+                {
+                    sw.WriteLine(f);
+                }
+            }
+        }
+    }
+}
+
+###########################################################################################################################
+using System.Windows.Forms;
+using System;
+using Autodesk.Navisworks.Api.Plugins;
+using ComApi = Autodesk.Navisworks.Api.Interop.ComApi;
+using ComApiBridge = Autodesk.Navisworks.Api.ComApi;
+
+namespace ExportGeometry.UnitsApp.Source.UpdateFile
+{
+    class myEventSink : ComApi._InwOpStateEvents
+    {
+
+        public myEventSink() { }
+        
+        public void OnCurrentSceneChanged()
+        {
+            MessageBox.Show("OnCurrentSceneChanged");
+        }
+
+        public void OnCurrentSceneChanging()
+        {
+            MessageBox.Show("OnCurrentSceneChanging");
+        }
+
+        public void OnCurrentAnimationChanged()
+        {
+            MessageBox.Show("OnCurrentAnimationChanged");
+        }
+
+        public void OnCurrentSelectionChanged()
+        {
+            MessageBox.Show("OnCurrentSelectionChanged");
+        }
+
+        public void OnCustomChanged(string custom_name)
+        {
+            MessageBox.Show("OnCustomChanged");
+        }
+
+        public void OnCurrentViewChanged()
+        {
+            MessageBox.Show("OnCurrentViewChanged");
+        }
+
+        public void OnPlanViewChanged()
+        {
+            MessageBox.Show("OnPlanViewChanged");
+        }
+
+        public void OnSavedViewsChanged()
+        {
+            MessageBox.Show("OnSavedViewsChanged");
+        }
+
+        public void OnSectionViewChanged()
+        {
+            MessageBox.Show("OnSectionViewChanged");
+        }
+
+        //
+        // to start the event
+
+        private void startEvent()
+        {
+            ComApi.InwOpState10 state;
+            state = ComApiBridge.ComApiBridge.State;
+
+            int cookie;
+            
+            //create sink of the event
+            myEventSink mySink = new myEventSink();
+
+
+
+            // connection of the state object
+            System.Runtime.InteropServices.ComTypes.IConnectionPointContainer icpc = (System.Runtime.InteropServices.ComTypes.IConnectionPointContainer)state;
+
+            System.Runtime.InteropServices.ComTypes.IConnectionPoint icp;
+            Guid IID_IMyEvents = typeof(ComApi._InwOpStateEvents).GUID;
+            
+            // find the connection point of the state event
+            icpc.FindConnectionPoint(ref IID_IMyEvents, out icp);
+
+            //delegate the event
+            icp.Advise(mySink, out cookie);
+
+            //enable the event
+            state.EventsEnabled = true;
+            
+            //remember to unadvise when you do not require the event;
+            //you would need to have another member function to end event.
+            //icp.Unadvise(cookie);
+            
+        }
+        
+        public void Start()
+        {
+            startEvent();
+        }
+    }
+}
+
+###########################################################################################################################
+                    //Array array_data = GetArrayData(model_item);
+                    
+                    //string dir_model = Path.GetFileNameWithoutExtension(data_propery.Value.ToDisplayString());
+
+                    //if (array_data.Length == leng)
+                    //{
+                    //    path = @"D:\UpTest\"+ dir_model;
+                    //}
+
+                    //if (array_data.Length > curent_leng)
+                    //{
+                    //    path += dir_model;
+                    //}
+
+                    //string dir = Path.GetFileNameWithoutExtension(data_propery.Value.ToDisplayString());
+
+                    ///Directory.CreateDirectory(@"D:\UpTest\" + dir);
+                    //for(int i = 1; i <= array_data.Length; i++)
+                    //{
+                    //sw.Write(array_data.GetValue(i) + "  ");
+
+
+                    //}
+
+                    //sw.Write(data_propery.Value.ToDisplayString());
+                    //sw.WriteLine();
+
+                    //sw.WriteLine(data_propery.Value.ToDisplayString());
+
+########################################## 22.05.2019 #####################################################################
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using Autodesk.Navisworks.Api;
+using System.Runtime.InteropServices;
+using ComApiBridge = Autodesk.Navisworks.Api.ComApi.ComApiBridge;
+using ComApi = Autodesk.Navisworks.Api.Interop.ComApi;
+using System.Diagnostics;
+using System.Numerics;
+using System.Threading;
+
+namespace ExportGeometry.UnitsApp.Source
+{
+    class ModelGeometryCall
+    {
+        ModelItemCollection modelItemcollection = Autodesk.Navisworks.Api.Application.ActiveDocument.CurrentSelection.SelectedItems;
+        ComApi.InwOpState opState = ComApiBridge.State;
+
+        //List<Helpers.Model> modeles = new List<Helpers.Model>();
+        Helpers.Model model = new Helpers.Model();
+
+        // Test_Five()
+        public ModelGeometryCall()
+        {
+            System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+            watch.Start();
+            
+            model.model_item = new List<Helpers.Item>();
+
+            Run();
+            //WraiteToFile();
+
+            watch.Stop();
+            System.Windows.Forms.MessageBox.Show(watch.ElapsedMilliseconds.ToString());
+        }
+
+        // void Run()
+        private void Run()
+        {
+            Helpers.FinderItem finder = new Helpers.FinderItem(0);
+            ModelItemCollection geometry = finder.SearchByCategory("LcOpGeometryProperty", "Геометрия");
+
+            int count = geometry.Count;
+
+            for (int i = 0; i < count; i += 2 )
+            {
+                Thread myThread = new Thread(new ParameterizedThreadStart(HandlerModelGeometry_thread));
+                myThread.Start(geometry[i].Geometry);
+
+                try
+                {
+                    HandlerModelGeometry(geometry[i + 1].Geometry);
+                }
+                catch
+                {
+
+                }
+
+                myThread.Join();
+            }
+            
+            //for (int i = 0; i < count; ++i)
+            //{
+            //    HandlerModelGeometry(geometry[i].Geometry);
+            //}
+        }
+
+        // void HandlerModelGeometry(ModelGeometry modelGeometry)
+        private void HandlerModelGeometry(ModelGeometry modelGeometry)
+        {
+            Helpers.Item item_model = new Helpers.Item();
+            item_model.fragments = new List<Helpers.Fragment>();
+            item_model.name = modelGeometry.Item.DisplayName;
+
+            ComApi.InwOaPath oaPath = ComApiBridge.ToInwOaPath(modelGeometry.Item);
+            CallbackGeomListenerFive callbkListener = new CallbackGeomListenerFive();
+            
+            foreach (ComApi.InwOaFragment3 fragment in oaPath.Fragments())
+            {
+                Helpers.Fragment fragment_s = new Helpers.Fragment();
+                fragment_s.matrix = present_matrix((Array)(object)fragment.GetLocalToWorldMatrix().Matrix);
+                fragment_s.points = new List<Helpers.Point>();
+                callbkListener.points = fragment_s.points;
+                fragment.GenerateSimplePrimitives(ComApi.nwEVertexProperty.eNORMAL, callbkListener);
+
+                item_model.fragments.Add(fragment_s);
+            }
+
+            //GenerateFace(vectors, modelGeometry.Item.ClassDisplayName);
+
+            model.model_item.Add(item_model);
+        }
+
+
+        private void HandlerModelGeometry_thread(object obj)
+        {
+            ModelGeometry modelGeometry = obj as ModelGeometry;
+            Helpers.Item item_model = new Helpers.Item();
+            item_model.fragments = new List<Helpers.Fragment>();
+            item_model.name = modelGeometry.Item.DisplayName;
+
+            ComApi.InwOaPath oaPath = ComApiBridge.ToInwOaPath(modelGeometry.Item);
+            CallbackGeomListenerFive callbkListener = new CallbackGeomListenerFive();
+
+            foreach (ComApi.InwOaFragment3 fragment in oaPath.Fragments())
+            {
+                Helpers.Fragment fragment_s = new Helpers.Fragment();
+                fragment_s.matrix = present_matrix((Array)(object)fragment.GetLocalToWorldMatrix().Matrix);
+                fragment_s.points = new List<Helpers.Point>();
+                callbkListener.points = fragment_s.points;
+                fragment.GenerateSimplePrimitives(ComApi.nwEVertexProperty.eNORMAL, callbkListener);
+
+                item_model.fragments.Add(fragment_s);
+            }
+
+            //GenerateFace(vectors, modelGeometry.Item.ClassDisplayName);
+
+            model.model_item.Add(item_model);
+        }
+
+        //
+        private void GenerateFace(Stack<Vector3> vertex, string model_name)
+        {
+            //List<Vector3> vectors = new List<Vector3>();
+            //List<int> faces = new List<int>();
+
+            //int count_index = 0;
+            //int count_vertex = vertex.Count;
+
+            //for (int i = 0; i < count_vertex; i++)
+            //{
+            //    var vec = vertex.Pop();
+
+            //    int index = vectors.IndexOf(vec);
+
+            //    if (index == -1)
+            //    {
+            //        vectors.Add(vec);
+            //        faces.Add(count_index++);
+            //    }
+            //    else
+            //    {
+            //        faces.Add(index);
+            //    }
+            //}
+
+            //Helpers.Model model;
+            //model.vectors = vectors.ToArray();
+            //model.faces = faces.ToArray();
+            //model.name = model_name;
+            //model.count_vec = vectors.Count;
+
+            //modeles.Add(model);
+        }
+
+        // Write Model in file
+        private void WraiteToFile()
+        {
+            //StreamWriter sw = new StreamWriter(@"D:\model.obj");
+            //sw.WriteLine("# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware");
+            //sw.WriteLine("o Model_float");
+            //int offset_face = 1;
+
+            //foreach (Helpers.Model model in modeles)
+            //{
+            //    int count_v = model.count_vec;
+            //    int count_f = model.faces.Length;
+
+            //    for (int i = 0; i < count_v; i++)
+            //    {
+            //        sw.WriteLine("v " + model.vectors[i].X + " " + model.vectors[i].Y + " " + model.vectors[i].Z);
+            //    }
+
+            //    for (int i = 0; i < count_f; i += 3)
+            //    {
+            //        sw.WriteLine("f " + (model.faces[i] + offset_face) + " " + (model.faces[i + 1] + offset_face) + " " + (model.faces[i + 2] + offset_face));
+            //    }
+
+            //    offset_face += count_v;
+            //}
+
+            //sw.Close();
+        }
+
+        // matrix transformation
+        double[] present_matrix(Array matx)
+        {
+            double[] matrix = new double[16];
+
+            for(int i = 0; i < 16; i++)
+            {
+                matrix[i] = (double)matx.GetValue(i+1);
+            }
+
+            return matrix;
+        }
+    }
+
+    #region InwSimplePrimitivesCB Class
+
+    class CallbackGeomListenerFive : ComApi.InwSimplePrimitivesCB
+    {
+        public List<Helpers.Point> points;
+
+        public void Line(ComApi.InwSimpleVertex v1, ComApi.InwSimpleVertex v2) { }
+
+        public void Point(ComApi.InwSimpleVertex v1) { }
+
+        public void SnapPoint(ComApi.InwSimpleVertex v1) { }
+
+        public void Triangle(ComApi.InwSimpleVertex v1, ComApi.InwSimpleVertex v2, ComApi.InwSimpleVertex v3)
+        {
+            points.Add(get_point(v1));
+            points.Add(get_point(v2));
+            points.Add(get_point(v3));
+        }
+
+        Helpers.Point get_point(ComApi.InwSimpleVertex verex)
+        {
+            Helpers.Point point = new Helpers.Point();
+
+            // coordinate vertex
+            Array coor_verex = (Array)(object)verex.coord;
+            // color vertex
+            Array color_verex = (Array)(object)verex.color;
+            // normal vertex
+            Array normal_verex = (Array)(object)verex.normal;
+            // texture vertex
+            Array tex_verex = (Array)(object)verex.tex_coord;
+
+            Helpers.coordinate coord = new Helpers.coordinate();
+            Helpers.color color = new Helpers.color();
+            Helpers.normal normal = new Helpers.normal();
+            Helpers.texture texture = new Helpers.texture();
+
+            coord.x = (float)coor_verex.GetValue(1);
+            coord.y = (float)coor_verex.GetValue(2);
+            coord.z = (float)coor_verex.GetValue(3);
+
+            color.ra = (float)color_verex.GetValue(1);
+            color.rb = (float)color_verex.GetValue(2);
+            color.rc = (float)color_verex.GetValue(3);
+            color.ro = (float)color_verex.GetValue(4);
+
+            normal.x = (float)normal_verex.GetValue(1);
+            normal.y = (float)normal_verex.GetValue(2);
+            normal.z = (float)normal_verex.GetValue(3);
+
+            texture.u = (float)tex_verex.GetValue(1);
+            texture.w = (float)tex_verex.GetValue(2);
+
+            point.coord = coord;
+            point.color = color;
+            point.normal = normal;
+            point.texture = texture;
+
+            return point;
+        }
+    }
+    #endregion
+}
+
+
+###########################################################################################################################
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Numerics;
+
+namespace ExportGeometry.UnitsApp.Helpers
+{
+    class ModelStructure
+    {
+
+    }
+
+    struct Model
+    {
+        public string name;
+        public int count_vec;
+        public Vector3[] vectors;
+        public int[] faces;
+
+        // new structure
+        public List<Item> model_item;
+    }
+
+    struct coordinate
+    {
+        public float x;
+        public float y;
+        public float z;
+    }
+
+    struct color
+    {
+        public float ra;
+        public float rb;
+        public float rc;
+        public float ro;
+    }
+
+    struct normal
+    {
+        public float x;
+        public float y;
+        public float z;
+    }
+
+    struct texture
+    {
+        public float u;
+        public float w;
+    }
+
+    struct Point
+    {
+        public coordinate coord;
+        public color color;
+        public normal normal;
+        public texture texture;
+    }
+
+    struct Fragment
+    {
+        public double[] matrix;
+        public List<Point> points;
+        public List<int> faces;
+    }
+
+    struct Property
+    {
+        public string name;
+        public string value;
+    }
+
+    struct Item
+    {
+        public string name;
+        public List<Property> properties;
+        public List<Fragment> fragments;
+    }
+
+
+}
+
+
+###########################################################################################################################
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using Autodesk.Navisworks.Api;
+using System.Runtime.InteropServices;
+using ComApiBridge = Autodesk.Navisworks.Api.ComApi.ComApiBridge;
+using ComApi = Autodesk.Navisworks.Api.Interop.ComApi;
+using System.Diagnostics;
+using System.Numerics;
+using System.Threading;
+
+namespace ExportGeometry.UnitsApp.Source
+{
+    class ModelGeometryCall
+    {
+        ModelItemCollection modelItemcollection = Autodesk.Navisworks.Api.Application.ActiveDocument.CurrentSelection.SelectedItems;
+        ComApi.InwOpState opState = ComApiBridge.State;
+
+        DS.Model_3D model = new DS.Model_3D();
+
+        // Test_Five()
+        public ModelGeometryCall()
+        {
+            System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+            watch.Start();
+
+            model.items = new List<DS.Item>();
+
+            Run();
+
+            watch.Stop();
+            System.Windows.Forms.MessageBox.Show(watch.ElapsedMilliseconds.ToString());
+        }
+
+        // void Run()
+        private void Run()
+        {
+            //Helpers.FinderItem finder = new Helpers.FinderItem(0);
+            //ModelItemCollection geometry = finder.SearchByCategory("LcOpGeometryProperty", "Геометрия");
+
+            //int count = geometry.Count;
+            //for (int i = 0; i < count; ++i)
+            //{
+            //    HandlerModelGeometry(geometry[i].Geometry);
+            //}
+
+            ModelHandler opm = new ModelHandler(ref model, "LcOaPropOverrideCat", "Данные MicroStation");
+            ModelHandler rvt = new ModelHandler(ref model, "LcRevitData_Element", "Объект");
+
+
+            var action_opm = new Action(opm.Run);
+            var action_rvt = new Action(rvt.Run);
+
+            var task_opm = new Task(action_opm);
+            var task_rvt = new Task(action_rvt);
+
+            task_opm.Start();
+            task_rvt.Start();
+
+            task_opm.Wait();
+            task_rvt.Wait();
+
+            //SelectModelOPM();
+            //SelectModelRevit();
+        }
+
+        private void SelectModelOPM()
+        {
+            ModelItemCollection opm_collection = FI.FinderItem.SearchByCategory("LcOaPropOverrideCat", "Данные MicroStation");
+
+            int count = opm_collection.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                ModelItem item = opm_collection[i];
+
+                DS.Item ds_item = new DS.Item();
+                ds_item.name = item.DisplayName;
+
+                // category
+                PropertyCategory category = item.PropertyCategories.FindCategoryByCombinedName(new NamedConstant("LcOaPropOverrideCat", "Данные MicroStation"));
+
+                // Property and Fragment
+                FillProperties(ref ds_item, category);
+                FillFragments(ref ds_item, item);
+
+                model.items.Add(ds_item);
+            }
+        }
+
+        private void SelectModelRevit()
+        {
+            ModelItemCollection revit_collection = FI.FinderItem.SearchByCategory("LcRevitData_Element","Объект");
+
+            int count = revit_collection.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                ModelItem item = revit_collection[i];
+
+                DS.Item ds_item = new DS.Item();
+                ds_item.name = item.DisplayName;
+
+                // category
+                PropertyCategory category = item.PropertyCategories.FindCategoryByCombinedName(new NamedConstant("LcRevitData_Element", "Объект"));
+
+                // Property and Fragment
+                FillProperties(ref ds_item, category);
+                FillFragments(ref ds_item, item);
+
+                model.items.Add(ds_item);
+            }
+        }
+
+        #region Property
+        //
+        // На вход получает созданный item и
+        // category из которой нужно получить
+        // свойства, создает список свойств 
+        //
+        private void FillProperties(ref DS.Item ds_item, PropertyCategory category)
+        {
+            DataPropertyCollection property_collection = category.Properties;
+
+            ds_item.properties = new List<DS.Property>();
+
+            foreach (DataProperty property in property_collection)
+            {
+                //try
+                //{
+                //    DS.Property ds_property = new DS.Property();
+
+                //    ds_property.name = property.DisplayName;
+                //    ds_property.value = property.Value.ToDisplayString();
+
+                //    ds_item.properties.Add(ds_property);
+                //}
+                //catch
+                //{
+
+                //}
+                DS.Property ds_property = new DS.Property();
+
+                ds_property.name = property.DisplayName;
+                ds_property.value = get_value(property.Value);
+
+                ds_item.properties.Add(ds_property);
+            }
+        }
+
+        private string get_value(VariantData property)
+        {
+            string value = "";
+
+            if(property.IsBoolean)
+            {
+                value = property.ToBoolean().ToString();
+            }
+            else if (property.IsDisplayString)
+            {
+                value = property.ToDisplayString();
+            }
+            else if (property.IsInt32)
+            {
+                value = property.ToInt32().ToString();
+            }
+            else if (property.IsNamedConstant)
+            {
+                value = property.ToNamedConstant().Value.ToString();
+            }
+            else if (property.IsAnyDouble)
+            {
+                value = property.ToAnyDouble().ToString();
+            }
+            else if (property.IsDouble)
+            {
+                value = property.ToDouble().ToString();
+            }
+            else if (property.IsDoubleAngle)
+            {
+                value = property.ToDoubleAngle().ToString();
+            }
+            else if (property.IsDoubleArea)
+            {
+                value = property.ToDoubleArea().ToString();
+            }
+            else if (property.IsDoubleLength)
+            {
+                value = property.ToDoubleLength().ToString();
+            }
+            else if (property.IsDoubleVolume)
+            {
+                value = property.ToDoubleVolume().ToString();
+            }
+            else if (property.IsDateTime)
+            {
+                value = property.ToDateTime().ToString();
+            }
+
+            return value;
+
+        }
+        #endregion
+
+        #region Geometry
+        //
+        // на входе Item ModelItem
+        //
+        //
+        //
+        private void FillFragments(ref DS.Item ds_item, ModelItem item)
+        {
+            foreach (ModelItem item_geometry in item.DescendantsAndSelf)
+            {
+                if (item_geometry.HasGeometry)
+                {
+                    ds_item.fragments = new List<DS.Fragment>();
+
+                    HandlerModelGeometry(ds_item.fragments, item_geometry.Geometry);
+                }
+            }
+        }
+
+        private void HandlerModelGeometry(List<DS.Fragment> list, ModelGeometry modelGeometry)
+        {
+            ComApi.InwOaPath oaPath = ComApiBridge.ToInwOaPath(modelGeometry.Item);
+            CallbackGeomListenerFive callbkListener = new CallbackGeomListenerFive();
+
+            foreach (ComApi.InwOaFragment3 fragment in oaPath.Fragments())
+            {
+                DS.Fragment fragment_s = new DS.Fragment();
+
+                fragment_s.matrix = present_matrix((Array)(object)fragment.GetLocalToWorldMatrix().Matrix);
+                fragment_s.points = new List<DS.Point>();
+                fragment_s.faces = new List<int>();
+
+                callbkListener.points = fragment_s.points;
+                callbkListener.faces = fragment_s.faces;
+
+                fragment.GenerateSimplePrimitives(ComApi.nwEVertexProperty.eNORMAL, callbkListener);
+
+                list.Add(fragment_s);
+            }
+        }
+        
+        // matrix transformation
+        double[] present_matrix(Array matx)
+        {
+            double[] matrix = new double[16];
+
+            for (int i = 0; i < 16; i++)
+            {
+                matrix[i] = (double)matx.GetValue(i + 1);
+            }
+
+            return matrix;
+        }
+        #endregion
+
+
+        // void HandlerModelGeometry(ModelGeometry modelGeometry)
+        //private void HandlerModelGeometry(ModelGeometry modelGeometry)
+        //{
+        //    Helpers.Item item_model = new Helpers.Item();
+        //    item_model.fragments = new List<Helpers.Fragment>();
+        //    item_model.name = modelGeometry.Item.DisplayName;
+
+        //    ComApi.InwOaPath oaPath = ComApiBridge.ToInwOaPath(modelGeometry.Item);
+        //    CallbackGeomListenerFive callbkListener = new CallbackGeomListenerFive();
+
+        //    foreach (ComApi.InwOaFragment3 fragment in oaPath.Fragments())
+        //    {
+        //        Helpers.Fragment fragment_s = new Helpers.Fragment();
+        //        fragment_s.matrix = present_matrix((Array)(object)fragment.GetLocalToWorldMatrix().Matrix);
+        //        fragment_s.points = new List<Helpers.Point>();
+        //        callbkListener.points = fragment_s.points;
+        //        fragment.GenerateSimplePrimitives(ComApi.nwEVertexProperty.eNORMAL, callbkListener);
+
+        //        item_model.fragments.Add(fragment_s);
+        //    }
+
+        //    //GenerateFace(vectors, modelGeometry.Item.ClassDisplayName);
+
+        //    model.model_item.Add(item_model);
+        //}
+
+
+
+        // Test Thread method
+        private void HandlerModelGeometry_thread(object obj)
+        {
+            //ModelGeometry modelGeometry = obj as ModelGeometry;
+            //Helpers.Item item_model = new Helpers.Item();
+            //item_model.fragments = new List<Helpers.Fragment>();
+            //item_model.name = modelGeometry.Item.DisplayName;
+
+            //ComApi.InwOaPath oaPath = ComApiBridge.ToInwOaPath(modelGeometry.Item);
+            //CallbackGeomListenerFive callbkListener = new CallbackGeomListenerFive();
+
+            //foreach (ComApi.InwOaFragment3 fragment in oaPath.Fragments())
+            //{
+            //    Helpers.Fragment fragment_s = new Helpers.Fragment();
+            //    fragment_s.matrix = present_matrix((Array)(object)fragment.GetLocalToWorldMatrix().Matrix);
+            //    fragment_s.points = new List<Helpers.Point>();
+            //    callbkListener.points = fragment_s.points;
+            //    fragment.GenerateSimplePrimitives(ComApi.nwEVertexProperty.eNORMAL, callbkListener);
+
+            //    item_model.fragments.Add(fragment_s);
+            //}
+
+            ////GenerateFace(vectors, modelGeometry.Item.ClassDisplayName);
+
+            //model.model_item.Add(item_model);
+        }
+        //
+        private void GenerateFace(Stack<Vector3> vertex, string model_name)
+        {
+            //List<Vector3> vectors = new List<Vector3>();
+            //List<int> faces = new List<int>();
+
+            //int count_index = 0;
+            //int count_vertex = vertex.Count;
+
+            //for (int i = 0; i < count_vertex; i++)
+            //{
+            //    var vec = vertex.Pop();
+
+            //    int index = vectors.IndexOf(vec);
+
+            //    if (index == -1)
+            //    {
+            //        vectors.Add(vec);
+            //        faces.Add(count_index++);
+            //    }
+            //    else
+            //    {
+            //        faces.Add(index);
+            //    }
+            //}
+
+            //Helpers.Model model;
+            //model.vectors = vectors.ToArray();
+            //model.faces = faces.ToArray();
+            //model.name = model_name;
+            //model.count_vec = vectors.Count;
+
+            //modeles.Add(model);
+        }
+        // Write Model in file
+        private void WraiteToFile()
+        {
+            //StreamWriter sw = new StreamWriter(@"D:\model.obj");
+            //sw.WriteLine("# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware");
+            //sw.WriteLine("o Model_float");
+            //int offset_face = 1;
+
+            //foreach (Helpers.Model model in modeles)
+            //{
+            //    int count_v = model.count_vec;
+            //    int count_f = model.faces.Length;
+
+            //    for (int i = 0; i < count_v; i++)
+            //    {
+            //        sw.WriteLine("v " + model.vectors[i].X + " " + model.vectors[i].Y + " " + model.vectors[i].Z);
+            //    }
+
+            //    for (int i = 0; i < count_f; i += 3)
+            //    {
+            //        sw.WriteLine("f " + (model.faces[i] + offset_face) + " " + (model.faces[i + 1] + offset_face) + " " + (model.faces[i + 2] + offset_face));
+            //    }
+
+            //    offset_face += count_v;
+            //}
+
+            //sw.Close();
+        }
+    }
+
+    #region InwSimplePrimitivesCB Class
+    class CallbackGeomListenerFive : ComApi.InwSimplePrimitivesCB
+    {
+        public List<DS.Point> points;
+        public List<int> faces;
+
+        public void Line(ComApi.InwSimpleVertex v1, ComApi.InwSimpleVertex v2) { }
+
+        public void Point(ComApi.InwSimpleVertex v1) { }
+
+        public void SnapPoint(ComApi.InwSimpleVertex v1) { }
+
+        public void Triangle(ComApi.InwSimpleVertex v1, ComApi.InwSimpleVertex v2, ComApi.InwSimpleVertex v3)
+        {
+            set_ds_point(v1);
+            set_ds_point(v2);
+            set_ds_point(v3);
+        }
+
+        void set_ds_point(ComApi.InwSimpleVertex vertex)
+        {
+            // coordinate vertex
+            Array coord = (Array)(object)vertex.coord;
+            int index = get_index(points, coord);
+
+            if(index == -1)
+            {
+                DS.Point point = new DS.Point();
+
+                // color vertex
+                Array color = (Array)(object)vertex.color;
+                // normal vertex
+                Array normal = (Array)(object)vertex.normal;
+                // texture vertex
+                Array texture = (Array)(object)vertex.tex_coord;
+
+                point.coordinate = coord;
+                point.color = color;
+                point.normal = normal;
+                point.texture = texture;
+
+                faces.Add(points.Count);
+                points.Add(point);
+            }
+            else
+            {
+                faces.Add(index);
+            }
+        }
+
+        int get_index(List<DS.Point> points, Array coord)
+        {
+            int count = points.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (equel_coordinate(points[i].coordinate, coord))
+                    return i;
+            }
+
+            return -1;
+        }
+
+        // Long
+        //int get_index(DS.Point[] points, Array coord)
+        //{
+        //    int count = points.Length;
+
+        //    for (int i = 0; i < count; i++)
+        //    {
+        //        if (equel_coordinate(points[i].coordinate, coord))
+        //            return i;
+        //    }
+
+        //    return -1;
+        //}
+
+        bool equel_coordinate(Array coord1, Array coord2)
+        {
+            if (coord1.GetValue(1).Equals(coord2.GetValue(1)))
+                return false;
+            if (coord1.GetValue(2).Equals(coord2.GetValue(2)))
+                return false;
+            if (coord1.GetValue(3).Equals(coord2.GetValue(3)))
+                return false;
+            return true;
+        }
+    }
+    #endregion
+
+    class ModelHandler
+    {
+        ModelItemCollection modelItemcollection = Autodesk.Navisworks.Api.Application.ActiveDocument.CurrentSelection.SelectedItems;
+        ComApi.InwOpState opState = ComApiBridge.State;
+
+        DS.Model_3D model;
+
+        string internel_name;
+        string user_name;
+
+
+
+        // Test_Five()
+        public ModelHandler(ref DS.Model_3D _model, string _internel_name, string _user_name)
+        {
+            model = _model;
+            internel_name = _internel_name;
+            user_name = _user_name;
+
+            model.items = new List<DS.Item>();
+        }
+
+        // void Run()
+        public void Run()
+        {
+            SelectedModel();
+        }
+
+        private void SelectedModel()
+        {
+            ModelItemCollection revit_collection = FI.FinderItem.SearchByCategory(internel_name, user_name);
+
+            int count = revit_collection.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                ModelItem item = revit_collection[i];
+
+                DS.Item ds_item = new DS.Item();
+                ds_item.name = item.DisplayName;
+
+                // category
+                PropertyCategory category = item.PropertyCategories.FindCategoryByCombinedName(new NamedConstant(internel_name, user_name));
+
+                // Property and Fragment
+                FillProperties(ref ds_item, category);
+                FillFragments(ref ds_item, item);
+
+                model.items.Add(ds_item);
+            }
+        }
+
+        #region Property
+        //
+        // На вход получает созданный item и
+        // category из которой нужно получить
+        // свойства, создает список свойств 
+        //
+        private void FillProperties(ref DS.Item ds_item, PropertyCategory category)
+        {
+            DataPropertyCollection property_collection = category.Properties;
+
+            ds_item.properties = new List<DS.Property>();
+
+            foreach (DataProperty property in property_collection)
+            {
+
+                DS.Property ds_property = new DS.Property();
+
+                ds_property.name = property.DisplayName;
+                ds_property.value = get_value(property.Value);
+
+                ds_item.properties.Add(ds_property);
+            }
+        }
+
+        private string get_value(VariantData property)
+        {
+            string value = "";
+
+            if (property.IsBoolean)
+            {
+                value = property.ToBoolean().ToString();
+            }
+            else if (property.IsDisplayString)
+            {
+                value = property.ToDisplayString();
+            }
+            else if (property.IsInt32)
+            {
+                value = property.ToInt32().ToString();
+            }
+            else if (property.IsNamedConstant)
+            {
+                value = property.ToNamedConstant().Value.ToString();
+            }
+            else if (property.IsAnyDouble)
+            {
+                value = property.ToAnyDouble().ToString();
+            }
+            else if (property.IsDouble)
+            {
+                value = property.ToDouble().ToString();
+            }
+            else if (property.IsDoubleAngle)
+            {
+                value = property.ToDoubleAngle().ToString();
+            }
+            else if (property.IsDoubleArea)
+            {
+                value = property.ToDoubleArea().ToString();
+            }
+            else if (property.IsDoubleLength)
+            {
+                value = property.ToDoubleLength().ToString();
+            }
+            else if (property.IsDoubleVolume)
+            {
+                value = property.ToDoubleVolume().ToString();
+            }
+            else if (property.IsDateTime)
+            {
+                value = property.ToDateTime().ToString();
+            }
+
+            return value;
+
+        }
+        #endregion
+
+        #region Geometry
+        //
+        // на входе Item ModelItem
+        //
+        //
+        //
+        private void FillFragments(ref DS.Item ds_item, ModelItem item)
+        {
+            foreach (ModelItem item_geometry in item.DescendantsAndSelf)
+            {
+                if (item_geometry.HasGeometry)
+                {
+                    ds_item.fragments = new List<DS.Fragment>();
+
+                    HandlerModelGeometry(ds_item.fragments, item_geometry.Geometry);
+                }
+            }
+        }
+
+        private void HandlerModelGeometry(List<DS.Fragment> list, ModelGeometry modelGeometry)
+        {
+            ComApi.InwOaPath oaPath = ComApiBridge.ToInwOaPath(modelGeometry.Item);
+            CallbackGeomListenerFive callbkListener = new CallbackGeomListenerFive();
+
+            foreach (ComApi.InwOaFragment3 fragment in oaPath.Fragments())
+            {
+                DS.Fragment fragment_s = new DS.Fragment();
+
+                fragment_s.matrix = present_matrix((Array)(object)fragment.GetLocalToWorldMatrix().Matrix);
+                fragment_s.points = new List<DS.Point>();
+                fragment_s.faces = new List<int>();
+
+                callbkListener.points = fragment_s.points;
+                callbkListener.faces = fragment_s.faces;
+
+                fragment.GenerateSimplePrimitives(ComApi.nwEVertexProperty.eNORMAL, callbkListener);
+
+                list.Add(fragment_s);
+            }
+        }
+
+        // matrix transformation
+        double[] present_matrix(Array matx)
+        {
+            double[] matrix = new double[16];
+
+            for (int i = 0; i < 16; i++)
+            {
+                matrix[i] = (double)matx.GetValue(i + 1);
+            }
+
+            return matrix;
+        }
+        #endregion
+
+    }
+}
+###########################################################################################################################
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using Autodesk.Navisworks.Api;
+using System.Runtime.InteropServices;
+using ComApiBridge = Autodesk.Navisworks.Api.ComApi.ComApiBridge;
+using ComApi = Autodesk.Navisworks.Api.Interop.ComApi;
+using System.Diagnostics;
+using System.Numerics;
+using System.Threading;
+
+namespace ExportGeometry.UnitsApp.Source
+{
+    class ModelGeometryCall
+    {
+        DS.Model_3D model;
+
+        public ModelGeometryCall()
+        {
+
+            #region LcTest
+            //Tests.lcTest lc = new Tests.lcTest();
+            #endregion
+
+            model = new DS.Model_3D();
+            model.items = new List<DS.Item>();
+
+            System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+            watch.Start();
+
+            Run();
+
+            watch.Stop();
+            System.Windows.Forms.MessageBox.Show(watch.ElapsedMilliseconds.ToString());
+
+            //Tests.WriteToFileData wtfd = new Tests.WriteToFileData(model);
+            //Tests.WriteToObjFile wtof = new Tests.WriteToObjFile(model);
+            Tests.WriteToObj wtof = new Tests.WriteToObj(model);
+            //Tests.WritToUnity wtof = new Tests.WritToUnity(model);
+
+        }
+
+        // void Run()
+        private void Run()
+        {
+
+            RobModel geometry = new RobModel("LcOpGeometryProperty", "Геометрия");
+            var geometry_list = geometry.Run();
+
+            //RobModel opm = new RobModel("LcOaPropOverrideCat", "Данные MicroStation");
+            //var opm_list = opm.Run();
+            
+            //RobModel rvt = new RobModel("LcRevitData_Element", "Объект");
+            //var rvt_list = rvt.Run();
+
+            model.items = new List<DS.Item>();
+
+            model.items.AddRange(geometry_list);
+
+            //model.items.AddRange(opm_list);
+            //model.items.AddRange(rvt_list);
+
+            //Thread th_opm = new Thread(new ThreadStart(opm.Run));
+            //th_opm.Start();
+            //th_opm.Join();
+        }
+    }
+
+    #region InwSimplePrimitivesCB Class
+    class CallbackGeomListenerFive : ComApi.InwSimplePrimitivesCB
+    {
+        public List<DS.Point> points;
+        public List<int> faces;
+
+        public void Line(ComApi.InwSimpleVertex v1, ComApi.InwSimpleVertex v2) { }
+
+        public void Point(ComApi.InwSimpleVertex v1) { }
+
+        public void SnapPoint(ComApi.InwSimpleVertex v1) { }
+
+        public void Triangle(ComApi.InwSimpleVertex v1, ComApi.InwSimpleVertex v2, ComApi.InwSimpleVertex v3)
+        {
+            set_ds_point(v1);
+            set_ds_point(v2);
+            set_ds_point(v3);
+        }
+
+        void set_ds_point(ComApi.InwSimpleVertex vertex)
+        {
+            // coordinate vertex
+            float[] coord = convert_to_float((Array)(object)vertex.coord);
+            int index = get_index(points, coord);
+
+            if(index == -1)
+            {
+                DS.Point point = new DS.Point();
+
+                point.coordinate = coord;
+                point.color = convert_to_float((Array)(object)vertex.color);
+                point.normal = convert_to_float((Array)(object)vertex.normal);
+                point.texture = convert_to_float((Array)(object)vertex.tex_coord);
+
+                points.Add(point);
+                faces.Add(points.Count);
+            }
+            else
+            {
+                faces.Add(index + 1);
+            }
+        }
+
+        int get_index(List<DS.Point> points, float[] coord)
+        {
+            int count = points.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (equel_coordinate(points[i].coordinate, coord))
+                    return i;
+            }
+
+            return -1;
+        }
+
+        bool equel_coordinate(float[] arr_one, float[] arr_two)
+        {
+            if (arr_one[0] != arr_two[0])
+                return false;
+            if (arr_one[1] != arr_two[1])
+                return false;
+            if (arr_one[2] != arr_two[2])
+                return false;
+
+            return true;
+        }
+
+        float[] convert_to_float(Array data)
+        {
+            int count = data.Length;
+            float[] result = new float[count];
+
+            for(int i = 0; i < count; i++)
+            {
+                result[i] = (float)(object)data.GetValue(i + 1);
+            }
+
+            return result;
+        }
+    }
+    #endregion
+
+    #region Rob model
+    class RobModel
+    {
+        // поля 
+        private ComApi.InwOpState opState;
+        private List<DS.Item> _list;
+        private string internel_name;
+        private string user_name;
+
+        // конструктор
+        public RobModel(string _internel_name, string _user_name)
+        {
+            opState = ComApiBridge.State;
+            _list = new List<DS.Item>();
+            internel_name = _internel_name;
+            user_name = _user_name;
+        }
+
+        // запуск из вне 
+        // возврат списка
+        public List<DS.Item> Run()
+        {
+            SelectedModel();
+
+            return _list;
+        }
+
+        // делае запрос в модель получает коллекцию
+        // пробегает по коллекции получает элементы
+        // создает DS.Item
+        // добовляет имя элемента, получает категорию со свойствами
+        // вызов метода заполнения свойст
+        // вызов метода заполнения фрагментов
+        // добавление в список _list
+        private void SelectedModel()
+        {
+            ModelItemCollection collection = new FI.FinderItem().SearchByCategory(internel_name, user_name);
+
+            int count = collection.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                ModelItem item = collection[i];
+
+                DS.Item ds_item = new DS.Item();
+                ds_item.name = item.DisplayName;
+
+                // category
+                PropertyCategory category = item.PropertyCategories.FindCategoryByCombinedName(new NamedConstant(internel_name, user_name));
+
+                // Property and Fragment
+                FillProperties(ref ds_item, category);
+                FillFragments(ref ds_item, item);
+
+                _list.Add(ds_item);
+            }
+        }
+
+        #region Property
+        //
+        // На вход получает созданный item и
+        // category из которой нужно получить
+        // свойства, создает список свойств 
+        //
+        private void FillProperties(ref DS.Item ds_item, PropertyCategory category)
+        {
+            DataPropertyCollection property_collection = category.Properties;
+
+            ds_item.properties = new List<DS.Property>();
+
+            foreach (DataProperty property in property_collection)
+            {
+
+                DS.Property ds_property = new DS.Property();
+
+                ds_property.name = property.DisplayName;
+                ds_property.value = get_value(property.Value);
+
+                ds_item.properties.Add(ds_property);
+            }
+        }
+
+        private string get_value(VariantData property)
+        {
+            string value = "";
+
+            if (property.IsBoolean)
+            {
+                value = property.ToBoolean().ToString();
+            }
+            else if (property.IsDisplayString)
+            {
+                value = property.ToDisplayString();
+            }
+            else if (property.IsInt32)
+            {
+                value = property.ToInt32().ToString();
+            }
+            else if (property.IsNamedConstant)
+            {
+                value = property.ToNamedConstant().Value.ToString();
+            }
+            else if (property.IsAnyDouble)
+            {
+                value = property.ToAnyDouble().ToString();
+            }
+            else if (property.IsDouble)
+            {
+                value = property.ToDouble().ToString();
+            }
+            else if (property.IsDoubleAngle)
+            {
+                value = property.ToDoubleAngle().ToString();
+            }
+            else if (property.IsDoubleArea)
+            {
+                value = property.ToDoubleArea().ToString();
+            }
+            else if (property.IsDoubleLength)
+            {
+                value = property.ToDoubleLength().ToString();
+            }
+            else if (property.IsDoubleVolume)
+            {
+                value = property.ToDoubleVolume().ToString();
+            }
+            else if (property.IsDateTime)
+            {
+                value = property.ToDateTime().ToString();
+            }
+
+            return value;
+        }
+        #endregion
+
+        #region Geometry
+        //
+        // на входе Item ModelItem
+        //
+        //
+        //
+        private void FillFragments(ref DS.Item ds_item, ModelItem item)
+        {
+            foreach (ModelItem item_geometry in item.AncestorsAndSelf)
+            {
+                if (item_geometry.HasGeometry)
+                {
+                    ds_item.fragments = new List<DS.Fragment>();
+                    ModelGeometry geometry = item_geometry.Geometry;
+
+                    //if (geometry.IsSolid)
+                    //    continue;
+
+                    if (geometry.PrimitiveTypes != PrimitiveTypes.Triangles)
+                        continue;
+
+                    HandlerModelGeometry(ds_item.fragments, item_geometry.Geometry);
+                }
+            }
+
+            foreach (ModelItem item_geometry in item.DescendantsAndSelf)
+            {
+                if (item_geometry.HasGeometry)
+                {
+                    ds_item.fragments = new List<DS.Fragment>();
+                    ModelGeometry geometry = item_geometry.Geometry;
+
+                    //if (geometry.IsSolid)
+                    //    continue;
+
+                    if (geometry.PrimitiveTypes != PrimitiveTypes.Triangles)
+                        continue;
+
+                    HandlerModelGeometry(ds_item.fragments, item_geometry.Geometry);
+                }
+            }
+        }
+
+        private void HandlerModelGeometry(List<DS.Fragment> list, ModelGeometry modelGeometry)
+        {
+
+            ComApi.InwOaPath oaPath = ComApiBridge.ToInwOaPath(modelGeometry.Item);
+            CallbackGeomListenerFive callbkListener = new CallbackGeomListenerFive();
+
+            #region test
+            ComApi.InwNodeFragsColl coll_frag = oaPath.Fragments();
+
+            var enum_frag = coll_frag.GetEnumerator();
+
+            while(enum_frag.MoveNext())
+            {
+                ComApi.InwOaFragment3 fragment = enum_frag.Current as ComApi.InwOaFragment3;
+
+                DS.Fragment fragment_s = new DS.Fragment();
+
+                fragment_s.matrix = present_matrix((Array)(object)fragment.GetLocalToWorldMatrix().Matrix);
+                fragment_s.points = new List<DS.Point>();
+                fragment_s.faces = new List<int>();
+
+                callbkListener.points = fragment_s.points;
+                callbkListener.faces = fragment_s.faces;
+
+                fragment.GenerateSimplePrimitives(ComApi.nwEVertexProperty.eNORMAL, callbkListener);
+
+                list.Add(fragment_s);
+            }
+
+            #endregion
+
+            //foreach (ComApi.InwOaFragment3 fragment in oaPath.Fragments())
+            //{
+            //    DS.Fragment fragment_s = new DS.Fragment();
+
+            //    fragment_s.matrix = present_matrix((Array)(object)fragment.GetLocalToWorldMatrix().Matrix);
+            //    fragment_s.points = new List<DS.Point>();
+            //    fragment_s.faces = new List<int>();
+
+            //    callbkListener.points = fragment_s.points;
+            //    callbkListener.faces = fragment_s.faces;
+
+            //    fragment.GenerateSimplePrimitives(ComApi.nwEVertexProperty.eNORMAL, callbkListener);
+
+            //    list.Add(fragment_s);
+            //}
+        }
+
+        // matrix transformation
+        double[] present_matrix(Array matx)
+        {
+            double[] matrix = new double[16];
+
+            for (int i = 0; i < 16; i++)
+            {
+                matrix[i] = (double)matx.GetValue(i + 1);
+            }
+
+            return matrix;
+        }
+        #endregion
+    }
+    #endregion
+
+}
+
+###########################################################################################################################
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+
+namespace ExportGeometry.UnitsApp.Tests
+{
+    class WriteObj_sFile
+    {
+        #region Property Class
+        DS_Two.Model_3D model;
+        StreamWriter sw;
+
+        int faces_c;
+        int point_c;
+
+        #endregion
+
+        public WriteObj_sFile(DS_Two.Model_3D _model)
+        {
+            model = _model;
+            Run();
+        }
+
+        #region Method Class
+        private void Run()
+        {
+            DS_Two.Item[] items = model.items.ToArray();
+            int items_count = items.Length;
+
+            for (int i = 0; i < items_count; i++)
+            {
+                
+                w_fragments(items[i].fragments.ToArray(), items[i].name, i);
+
+                
+            }
+        }
+
+        private void w_header()
+        {
+            sw.WriteLine("# Wavefront OBJ");
+            sw.WriteLine("o Model");
+        }
+
+        private double[] transform_lcs_to_gcs(double[] matrix, float[] coordinate)
+        {
+            double[] GCS_Coordinate = new double[3];
+            GCS_Coordinate[0] = ((matrix[0] * coordinate[0] + matrix[4] * coordinate[1]) + matrix[12]);
+            GCS_Coordinate[1] = ((matrix[1] * coordinate[0] + matrix[5] * coordinate[1]) + matrix[13]);
+            GCS_Coordinate[2] = ((matrix[10] * coordinate[2]) + matrix[14]);
+
+            return GCS_Coordinate;
+        }
+
+        private void w_fragments(DS_Two.Fragment[] fragments, string name, int count_item)
+        {
+            int count_fragments = fragments.Length;
+
+            for (int i = 0; i < count_fragments; i++)
+            {
+                sw = new StreamWriter(@"D:\Models_Obj\" + name + "_" + count_item + "_" +i+ ".obj");
+
+                faces_c = 0;
+                point_c = 0;
+
+                w_header();
+
+                w_points(fragments[i].points.ToArray(), fragments[i].matrix);
+
+                w_faces(fragments[i].faces.ToArray());
+
+                faces_c += point_c;
+
+                sw.Close();
+            }
+        }
+
+        private void w_points(DS_Two.Point[] points, double[] matrix)
+        {
+            int count_points = points.Length;
+
+            for (int i = 0; i < count_points; i++)
+            {
+                double[] coord = transform_lcs_to_gcs(matrix, points[i].coordinate);
+                sw.WriteLine("v " + (coord[0] - 2110) + " " + (coord[1] + 3200) + " " + (coord[2] - 110));
+            }
+
+            point_c += count_points;
+        }
+
+        private void w_faces(int[] faces)
+        {
+            int count_faces = faces.Length;
+
+            for (int i = 0; i < count_faces; i += 3)
+            {
+                sw.WriteLine("f " + (faces[i] + faces_c) + " " + (faces[i + 1] + faces_c) + " " + (faces[i + 2] + faces_c));
+            }
+        }
+        #endregion
+    }
+}
+
+###########################################################################################################################
+
+###########################################################################################################################
+
+###########################################################################################################################
+
+###########################################################################################################################

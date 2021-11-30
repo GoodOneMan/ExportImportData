@@ -1,0 +1,100 @@
+﻿Имя (LcOaSceneBaseUserName):T120.nwd
+Тип (LcOaSceneBaseClassUserName):Файл
+Внутренний тип (LcOaSceneBaseClassName):LcOaPartition
+GUID (LcOaNodeGuid):98456231-8924-4e7a-9120-90ef80be7390
+Значок (LcOaNodeIcon):Файл
+Скрытый (LcOaNodeHidden):Нет
+Обязательный (LcOaNodeRequired):Нет
+Имя файла источника (LcOaPartitionSourceFilename):D:\Plan_VSK_100\120\T120.nwd
+Создатель (LcOpItemPropCreator):lcodpody
+
+
+	Имя (LcOaSceneBaseUserName):T120-EM.nwd
+	Тип (LcOaSceneBaseClassUserName):Файл
+	Внутренний тип (LcOaSceneBaseClassName):LcOaPartition
+	GUID (LcOaNodeGuid):685c7c60-0261-56af-83be-305de8ab70e8
+	Значок (LcOaNodeIcon):Файл
+	Скрытый (LcOaNodeHidden):Нет
+	Обязательный (LcOaNodeRequired):Нет
+	Имя файла источника (LcOaPartitionSourceFilename):\\Sstore\3d\11_otd\VSK_100_model\T120\T120-EM.dgn
+	Материал (LcOaNodeMaterial):
+	Создатель (LcOpItemPropCreator):LcNwcLoaderPlugin:lclddgn
+
+		Имя (LcOaSceneBaseUserName):T120-EM-TRAY.dgn
+		Тип (LcOaSceneBaseClassUserName):Ссылка
+		Внутренний тип (LcOaSceneBaseClassName):LcDgnReference
+		GUID (LcOaNodeGuid):0558eb80-4cfd-58e5-bbf7-6beef35b6e89
+		Значок (LcOaNodeIcon):Группа
+		Скрытый (LcOaNodeHidden):Нет
+		Обязательный (LcOaNodeRequired):Нет
+		Материал (LcOaNodeMaterial):
+		Файл источника (LcOaNodeSourceFile):T120-EM.dgn
+
+
+			Имя (LcOaSceneBaseUserName):NEUWA
+			Тип (LcOaSceneBaseClassUserName):Уровень
+			Внутренний тип (LcOaSceneBaseClassName):LcDgnLevel
+			GUID (LcOaNodeGuid):9cc79606-e13d-5455-b272-7e348dedc64a
+			Значок (LcOaNodeIcon):Слой
+			Скрытый (LcOaNodeHidden):Нет
+			Обязательный (LcOaNodeRequired):Нет
+			Материал (LcOaNodeMaterial):Цвет 0
+			Файл источника (LcOaNodeSourceFile):T120-EM.dgn
+			Слой (LcOaNodeLayer):NEUWA
+
+				Имя (LcOaSceneBaseUserName):BRCM_EQP
+				Тип (LcOaSceneBaseClassUserName):Ячейка
+				Внутренний тип (LcOaSceneBaseClassName):LcDgnCell
+				GUID (LcOaNodeGuid):3afcd845-0483-5945-9adb-338c46f409dd
+				Значок (LcOaNodeIcon):Группа
+				Скрытый (LcOaNodeHidden):Нет
+				Обязательный (LcOaNodeRequired):Нет
+				Материал (LcOaNodeMaterial):Цвет 0
+				Файл источника (LcOaNodeSourceFile):T120-EM.dgn
+				Слой (LcOaNodeLayer):NEUWA
+
+					Имя (LcOaSceneBaseUserName):brcm_eqp3d
+					Тип (LcOaSceneBaseClassUserName):Ячейка
+					Внутренний тип (LcOaSceneBaseClassName):LcDgnCell
+					GUID (LcOaNodeGuid):d92132e2-c0bd-5eea-8167-4cd47400815f
+					Значок (LcOaNodeIcon):Группа
+					Скрытый (LcOaNodeHidden):Нет
+					Обязательный (LcOaNodeRequired):Нет
+					Материал (LcOaNodeMaterial):Цвет 0
+					Файл источника (LcOaNodeSourceFile):T120-EM.dgn
+					Слой (LcOaNodeLayer):NEUWA
+
+						Имя (LcOaSceneBaseUserName):Stoika_3D
+						Тип (LcOaSceneBaseClassUserName):Ячейка
+						Внутренний тип (LcOaSceneBaseClassName):LcDgnCell
+						GUID (LcOaNodeGuid):b1ecd7d5-f113-5a2d-a7b3-7b518b656323
+						Значок (LcOaNodeIcon):Группа
+						Скрытый (LcOaNodeHidden):Нет
+						Обязательный (LcOaNodeRequired):Нет
+						Материал (LcOaNodeMaterial):Цвет 0
+						Файл источника (LcOaNodeSourceFile):T120-EM.dgn
+						Слой (LcOaNodeLayer):NEUWA
+
+
+							Тип (LcOaSceneBaseClassUserName):Smart Solid/Surface
+							Внутренний тип (LcOaSceneBaseClassName):LcDgnSmartSolid
+							GUID (LcOaNodeGuid):8c83df73-bb6b-5062-9b15-1061a3874dd7
+							Значок (LcOaNodeIcon):Геометрия
+							Скрытый (LcOaNodeHidden):Нет
+							Обязательный (LcOaNodeRequired):Нет
+							Материал (LcOaNodeMaterial):Цвет 1
+							Файл источника (LcOaNodeSourceFile):T120-EM.dgn
+							Слой (LcOaNodeLayer):NEUWA
+
+							Тип (LcOaSceneBaseClassUserName):Smart Solid/Surface
+							Внутренний тип (LcOaSceneBaseClassName):LcDgnSmartSolid
+							GUID (LcOaNodeGuid):70beb855-7ced-5de7-982c-0e6f15f77b3b
+							Значок (LcOaNodeIcon):Геометрия
+							Скрытый (LcOaNodeHidden):Нет
+							Обязательный (LcOaNodeRequired):Нет
+							Материал (LcOaNodeMaterial):Цвет 1
+							Файл источника (LcOaNodeSourceFile):T120-EM.dgn
+							Слой (LcOaNodeLayer):NEUWA
+
+
+

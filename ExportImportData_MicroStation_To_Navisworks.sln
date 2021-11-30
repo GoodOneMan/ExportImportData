@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExportDataToModel", "Bentley\ExportDataToModel\ExportDataToModel.csproj", "{BF18AFB6-1D56-4DD6-B4F3-2A779614DC58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImportDataOPM", "Autodesk\ImportDataOPM\ImportDataOPM.csproj", "{C3BE7D87-0B14-4154-90F5-1FBF7A7A37D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataModelBentleyOPM", "Structures\DataModelBentleyOPM\DataModelBentleyOPM.csproj", "{40DF1596-0BC5-45D5-9077-6AAFA60F8252}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompressionResource", "Structures\CompressionResource\CompressionResource.csproj", "{2E6A382B-3708-4730-8E7D-71E02F854824}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlueTwoTextFilesForTranslation_BentleyProperties", "GlueTwoTextFilesForTranslation_BentleyProperties\GlueTwoTextFilesForTranslation_BentleyProperties.csproj", "{AA4823E0-14D8-45BF-95BF-EFF6293B5AEF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RRSupportCalc", "..\Bentley_Project\Workers\RRSupportCalc\RRSupportCalc.csproj", "{C46DE5AD-A1F4-4CB4-9862-DB00F4DC95AB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BF18AFB6-1D56-4DD6-B4F3-2A779614DC58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF18AFB6-1D56-4DD6-B4F3-2A779614DC58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF18AFB6-1D56-4DD6-B4F3-2A779614DC58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF18AFB6-1D56-4DD6-B4F3-2A779614DC58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3BE7D87-0B14-4154-90F5-1FBF7A7A37D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3BE7D87-0B14-4154-90F5-1FBF7A7A37D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3BE7D87-0B14-4154-90F5-1FBF7A7A37D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3BE7D87-0B14-4154-90F5-1FBF7A7A37D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40DF1596-0BC5-45D5-9077-6AAFA60F8252}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40DF1596-0BC5-45D5-9077-6AAFA60F8252}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40DF1596-0BC5-45D5-9077-6AAFA60F8252}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40DF1596-0BC5-45D5-9077-6AAFA60F8252}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E6A382B-3708-4730-8E7D-71E02F854824}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E6A382B-3708-4730-8E7D-71E02F854824}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E6A382B-3708-4730-8E7D-71E02F854824}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E6A382B-3708-4730-8E7D-71E02F854824}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA4823E0-14D8-45BF-95BF-EFF6293B5AEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA4823E0-14D8-45BF-95BF-EFF6293B5AEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA4823E0-14D8-45BF-95BF-EFF6293B5AEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA4823E0-14D8-45BF-95BF-EFF6293B5AEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C46DE5AD-A1F4-4CB4-9862-DB00F4DC95AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C46DE5AD-A1F4-4CB4-9862-DB00F4DC95AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C46DE5AD-A1F4-4CB4-9862-DB00F4DC95AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C46DE5AD-A1F4-4CB4-9862-DB00F4DC95AB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {12863395-695E-49B4-84B0-325C169C8874}
+	EndGlobalSection
+EndGlobal
